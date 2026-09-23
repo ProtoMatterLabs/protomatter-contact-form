@@ -368,12 +368,32 @@ window.addEventListener("message", (event) => {
   }
 });
 
-(async () => {
+async function loadJson(path){
   try {
-    const response = await fetch("config.json", {cache:"no-store"});
-    if (response.ok) CONFIG = Object.assign({}, DEFAULTS, await response.json());
-  } catch (e){
-    console.warn("config.json not loaded, using defaults", e);
+    const response = await fetch(path, {cache:"no-store"});
+    if (response.ok) return await response.json();
+  } catch (e){ /* missing file is not an error: the defaults still work */ }
+  return null;
+}
+
+/* Three layers, each overriding the one before:
+     DEFAULTS      built in, so the page is never blank
+     config.json   settings shared by every card
+     profiles.json the one profile matching ?c=<id>
+   That means the endpoint and auto-reply wording are written once, and a
+   profile only carries what makes it different. */
+(async () => {
+  const shared = await loadJson("config.json");
+  if (shared) CONFIG = Object.assign({}, DEFAULTS, shared);
+
+  if (cardId){
+    const book = await loadJson("profiles.json");
+    const profile = book && book.profiles && book.profiles[cardId];
+    if (profile){
+      CONFIG = Object.assign({}, CONFIG, profile);
+    } else if (book){
+      console.warn("no profile for card id:", cardId);
+    }
   }
   render();
 })();

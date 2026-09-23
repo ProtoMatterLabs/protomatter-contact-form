@@ -1,0 +1,22 @@
+{
+  "_comment": "One file, many cards. index.html?c=<id> looks the id up here and merges it over config.json. Anything a profile omits falls back to config.json, so shared settings (endpoint, auto-reply wording) are written once.",
+
+  "profiles": {
+    "a7f3k9": {
+      "name": "Ada Lovelace",
+      "role": "Head of Engines",
+      "company": "ProtoMatter Labs",
+      "email": "ada@protomatter.ai",
+      "phone": "+15555550101",
+      "site": "https://automatolabs.com"
+    },
+    "m2x8p1": {
+      "name": "Alan Turing",
+      "role": "Research",
+      "company": "ProtoMatter Labs",
+      "email": "alan@protomatter.ai",
+      "phone": "",
+      "site": "https://automatolabs.com"
+    }
+  }
+}
