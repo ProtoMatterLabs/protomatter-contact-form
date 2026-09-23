@@ -34,7 +34,9 @@
     background:var(--accent); color:#fff;
     font-size:30px; font-weight:700; line-height:72px;
     margin:0 auto 12px; letter-spacing:-.02em;
+    overflow:hidden;
   }
+  .avatar img{width:100%; height:100%; object-fit:cover; display:block}
   .who h1{margin:0; font-size:23px; letter-spacing:-.02em}
   .who .role{color:var(--dim); font-size:15px; margin-top:3px}
 
@@ -198,6 +200,9 @@ const DEFAULTS = {
   cc:"",           // extra address copied on every submission
   ccOwner:true,    // also copy this profile's own email
   ccMode:"bcc",    // "bcc" keeps the copied addresses off the header
+  accent:"",      // brand colour; blank keeps the default
+  photo:"",       // image url, path, or data uri
+  links:[],       // extra buttons: {label, sub, url, icon}
   pageTitle:"",                                  // per-card override
   titleTemplate:"{{name}} — {{company}}",     // used when no override
   formTitle:"Send me your details",
@@ -247,6 +252,10 @@ function fillTemplate(text, c){
 function render(){
   const c = CONFIG;
 
+  // Accent drives the avatar, the primary button and every focus ring, so one
+  // value re-skins the whole card.
+  document.documentElement.style.setProperty("--accent", c.accent || "#d62828");
+
   /* The tab title is also the history entry. Ten cards all called
      "ProtoMatter - contact" are indistinguishable a week later, so name it
      after whoever the card belongs to. */
@@ -258,8 +267,20 @@ function render(){
   document.getElementById("name").textContent = c.name || " ";
   document.getElementById("role").textContent =
     [c.role, c.company].filter(Boolean).join(" · ") || " ";
-  document.getElementById("initials").textContent =
-    (c.name || "?").split(/\s+/).map(w => w[0] || "").join("").slice(0,2).toUpperCase();
+  const avatar = document.getElementById("initials");
+  const initials = (c.name || "?").split(/\s+/)
+    .map(w => w[0] || "").join("").slice(0, 2).toUpperCase();
+  if (c.photo){
+    avatar.textContent = "";
+    const img = document.createElement("img");
+    img.src = c.photo;
+    img.alt = c.name || "";
+    // A broken image should fall back to initials, not leave an empty circle.
+    img.addEventListener("error", () => { avatar.textContent = initials; });
+    avatar.appendChild(img);
+  } else {
+    avatar.textContent = initials;
+  }
 
   const smsBody = c.smsBody ||
     ("Hi! Saving your details.\n\n" + myDetails(c).join("\n") + "\n\nMine are:\nName:\nEmail:\n");
@@ -314,9 +335,11 @@ function render(){
     acts.push({icon:"\u{1F310}", label:"Our website",
                sub:c.site.replace(/^https?:\/\//,""), href:c.site});
   }
+  // Buttons the card owner added for themselves.
   (c.links || []).forEach(l => {
-    if (l && l.url) acts.push({icon:l.icon || "\u{1F517}", label:l.label || l.url,
-                               sub:l.sub || "", href:l.url});
+    if (!l || !l.url) return;
+    acts.push({icon:l.icon || "\u{1F517}", label:l.label || l.url,
+               sub:l.sub || "", href:l.url});
   });
   if (c.showForm){
     acts.push({icon:"\u{1F4E4}", label:c.formTitle, sub:c.formSub, action:"form"});

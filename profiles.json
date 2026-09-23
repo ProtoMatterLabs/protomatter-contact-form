@@ -1,6 +1,5 @@
 {
   "_comment": "One file, many cards. index.html?c=<id> looks the id up here and merges it over config.json. Anything a profile omits falls back to config.json, so shared settings (endpoint, auto-reply wording) are written once.",
-
   "profiles": {
     "a7f3k9": {
       "name": "Ada Lovelace",
@@ -8,7 +7,16 @@
       "company": "ProtoMatter Labs",
       "email": "ada@protomatter.ai",
       "phone": "+15555550101",
-      "site": "https://automatolabs.com"
+      "site": "https://automatolabs.com",
+      "accent": "#7a2fd6",
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/example"
+        }
+      ]
     },
     "m2x8p1": {
       "name": "Alan Turing",
@@ -16,7 +24,22 @@
       "company": "ProtoMatter Labs",
       "email": "alan@protomatter.ai",
       "phone": "",
-      "site": "https://automatolabs.com"
+      "site": "https://automatolabs.com",
+      "accent": "#0e7490",
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/example2"
+        },
+        {
+          "icon": "📅",
+          "label": "Book time",
+          "sub": "15 minutes",
+          "url": "https://cal.com/example"
+        }
+      ]
     }
   }
 }
