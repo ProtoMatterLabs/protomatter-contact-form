@@ -121,7 +121,7 @@
   <div class="actions" id="actions"></div>
 
   <div id="formPanel">
-    <form id="form" novalidate autocomplete="on" name="contact">
+    <form id="form" novalidate autocomplete="on">
       <label class="req" for="fname">Your name</label>
       <input id="fname" name="name" type="text" autocomplete="name"
              enterkeyhint="next" required placeholder="Ada Lovelace">
@@ -358,8 +358,12 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   errBox.style.display = "none";
 
-  const name = form.name.value.trim();
-  const email = form.email.value.trim();
+  // Not form.name / form.email: a form element has its own `name` and `id`
+  // properties, which shadow inputs of the same name and hand back a string
+  // instead of a field. Address the inputs directly.
+  const field = (id) => document.getElementById(id).value;
+  const name = field("fname").trim();
+  const email = field("femail").trim();
   if (!name) return fail("Please add your name.");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("That email does not look right.");
 
@@ -371,7 +375,7 @@ form.addEventListener("submit", async (event) => {
   document.getElementById("replyEmail").value =
     "mailto:" + email + "?subject=" + encodeURIComponent("Great to meet you") +
     "&body=" + encodeURIComponent(replyBody);
-  const theirPhone = form.phone.value.trim().replace(/[^\d+]/g, "");
+  const theirPhone = field("fphone").trim().replace(/[^\d+]/g, "");
   document.getElementById("replyText").value =
     theirPhone ? "sms:" + theirPhone + "?body=" + encodeURIComponent(replyBody) : "";
 
@@ -411,8 +415,8 @@ form.addEventListener("submit", async (event) => {
     // The relay is the only third-party thing here, so never let it strand
     // someone: hand them their own mail app, already filled in.
     const body = "Name: " + name + "\nEmail: " + email +
-                 "\nPhone: " + form.phone.value + "\nCompany: " + form.company.value +
-                 "\n\n" + form.note.value;
+                 "\nPhone: " + field("fphone") + "\nCompany: " + field("fcompany") +
+                 "\n\n" + field("fnote");
     const why = (e && e.message) ? " (" + e.message + ")" : "";
     fail('Could not send' + why + '. <a style="color:#ff8a80" href="mailto:' + CONFIG.email +
          "?subject=" + encodeURIComponent("Contact from card " + cardId) +
