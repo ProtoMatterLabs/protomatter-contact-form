@@ -76,6 +76,11 @@
                font-size:13.5px; color:var(--ink)}
   .grid2 input{width:16px; height:16px}
   .linkout{width:100%; font-family:Consolas,monospace; font-size:12.5px}
+  .adminOnly{border-color:#4a3a5c; background:#171420}
+  .adminOnly legend{color:#b79ae0}
+  .draft{background:#12261c; border:1px solid #2e6b46; color:#9fe0bb;
+         padding:8px 12px; border-radius:10px; font-size:12.5px; margin:0 18px 10px;
+         display:none}
   .group{border:1px solid var(--line); border-radius:var(--r);
          padding:10px 12px 12px; margin-bottom:12px}
   .group h4{margin:0 0 8px; font-size:10.5px; color:var(--dim); font-weight:600;
@@ -98,12 +103,18 @@
   </div>
   <div class="grow"></div>
   <span id="dirtyFlag" style="display:none; color:#e8cf7a; font-size:13px">
-    unsaved &mdash; download profiles.json and commit it
+    unsaved changes
   </span>
   <span class="status" id="status"></span>
 </header>
 
 
+
+<p class="draft" id="draftFlag">
+  Working from a local draft that is not published yet.
+  <a id="revertInline" style="color:#9fe0bb; text-decoration:underline; cursor:pointer">revert
+  to the published file</a>
+</p>
 
 <div class="tabs">
   <button class="tab on" data-tab="profiles">Profiles</button>
@@ -150,7 +161,7 @@
     <fieldset>
       <legend>Profile <span id="whichId"></span></legend>
       <div class="bar" style="margin:0 0 12px">
-        <button class="primary" id="openTheirEdit">Edit their profile</button>
+        <button class="primary" id="openTheirEdit">View their profile editor</button>
         <button id="openLive">View their card</button>
       </div>
       <div class="row">
@@ -175,18 +186,23 @@
         <div><label for="phone">Phone</label><input id="phone" type="tel" placeholder="+15555551234"></div>
       </div>
       <label for="site">Website</label><input id="site" type="url">
+      <p class="note">Blank fields fall back to the shared <code>config.json</code>,
+         so you only fill in what differs for this person. Everything above is
+         what <b>they</b> control from their own editor.</p>
+    </fieldset>
+
+    <fieldset class="adminOnly">
+      <legend>Admin only &mdash; not shown in their editor</legend>
       <label for="cc">Copy submissions to</label>
       <input id="cc" type="text" placeholder="someone@example.com, another@example.com">
       <label for="ccMode">How to copy them</label>
       <select id="ccMode">
-        <option value="bcc">Bcc — hidden from the other recipients</option>
-        <option value="cc">Cc — everyone sees who else was copied</option>
+        <option value="bcc">Bcc &mdash; hidden from the other recipients</option>
+        <option value="cc">Cc &mdash; everyone sees who else was copied</option>
       </select>
-      <p class="note">Every submission from this card is copied here as well as
-         landing in the central inbox. Comma-separate for several. Bcc is the
-         safer default: the copied addresses stay out of the header.</p>
-      <p class="note">Blank fields fall back to the shared <code>config.json</code>,
-         so you only fill in what differs for this person.</p>
+      <p class="note">Every submission from this card is copied here as well as landing
+         in the central inbox. Comma-separate for several. Their editor never shows
+         this, so it survives whatever they change.</p>
     </fieldset>
 
     <fieldset>
@@ -213,10 +229,14 @@
     <div class="group">
       <h4>Publish</h4>
       <div class="bar">
-        <button class="primary full" id="save">Download profiles.json</button>
+        <button class="primary full" id="save">Save changes</button>
+      </div>
+      <div class="bar">
+        <button id="download">Download profiles.json</button>
+        <button id="revert">Revert to published</button>
       </div>
       <p class="note" id="dirtyInline" style="display:none; color:#e8cf7a; margin-top:8px">
-        You have changes that are not in the file yet.
+        Unsaved changes. Press <b>Save changes</b> to keep them in this browser.
       </p>
       <div class="bar">
         <button id="mergeOne">Paste someone's details</button>
@@ -224,9 +244,9 @@
         <button id="copyJson">Copy JSON</button>
       </div>
       <p class="note" style="margin-top:8px">
-        <b>Nothing here publishes.</b> This downloads <code>profiles.json</code> to your
-        computer; the cards only change once you commit that file next to
-        <code>index.html</code>. Until then your edits live in this tab and nowhere else.
+        <b>Save changes</b> keeps your work in this browser, so a reload or a closed
+        tab will not lose it. The live cards only change when you download
+        <code>profiles.json</code> and commit it next to <code>index.html</code>.
       </p>
       <input id="file" type="file" accept=".json,application/json" style="display:none">
     </div>
@@ -658,7 +678,47 @@ document.getElementById("links").addEventListener("click", async () => {
 
 // ------------------------------------------------------------ persistence
 
+const DRAFT_KEY = "nfcCardProfilesDraft";
+
+/* A static site has nowhere to save to, but losing an afternoon's edits to a
+   closed tab is not acceptable either. "Save changes" keeps a local draft;
+   publishing is still an explicit download-and-commit. */
+function saveDraft(){
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({profiles: profiles}));
+    return true;
+  } catch (e){
+    say("Could not save locally: " + e.message);
+    return false;
+  }
+}
+
+function showDraftFlag(state){
+  const flag = document.getElementById("draftFlag");
+  if (flag) flag.style.display = state ? "block" : "none";
+}
+
+function revertToPublished(){
+  if (unsaved && !confirm("Discard your local changes and reload the published file?"))
+    return;
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e){ /* nothing to remove */ }
+  showDraftFlag(false);
+  dirty(false);
+  loadFromFile();
+  say("Reverted to the published file.");
+}
+
+document.getElementById("revert").addEventListener("click", revertToPublished);
+document.getElementById("revertInline").addEventListener("click", revertToPublished);
+
 document.getElementById("save").addEventListener("click", () => {
+  if (!saveDraft()) return;
+  dirty(false);
+  showDraftFlag(true);
+  say("Saved in this browser. Download and commit to publish.");
+});
+
+document.getElementById("download").addEventListener("click", () => {
   download("profiles.json",
            JSON.stringify({profiles: profiles}, null, 2) + "\n",
            "application/json");
@@ -795,21 +855,43 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-(async () => {
-  document.getElementById("baseUrl").value = location.href.replace(/[^/]*$/, "");
-  try {
-    const sharedResponse = await fetch("config.json", {cache:"no-store"});
-    if (sharedResponse.ok) shared = await sharedResponse.json();
-  } catch (e){ /* editable without it, just no fallback preview */ }
+async function loadFromFile(){
   try {
     const response = await fetch("profiles.json", {cache:"no-store"});
     if (response.ok){
       const data = await response.json();
       profiles = data.profiles || {};
     }
-  } catch (e){ /* first run */ }
+  } catch (e){ profiles = {}; }
   current = Object.keys(profiles)[0] || null;
   if (current) edit(current); else drawList();
+}
+
+(async () => {
+  document.getElementById("baseUrl").value = location.href.replace(/[^/]*$/, "");
+  try {
+    const sharedResponse = await fetch("config.json", {cache:"no-store"});
+    if (sharedResponse.ok) shared = await sharedResponse.json();
+  } catch (e){ /* editable without it, just no fallback preview */ }
+
+  // A local draft is work in progress and outranks the published file - but say
+  // so plainly. Silently showing something other than what is live is how you
+  // end up editing a version nobody else can see.
+  let draft = null;
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) draft = JSON.parse(raw);
+  } catch (e){ draft = null; }
+
+  if (draft && draft.profiles && Object.keys(draft.profiles).length){
+    profiles = draft.profiles;
+    current = Object.keys(profiles)[0] || null;
+    if (current) edit(current); else drawList();
+    showDraftFlag(true);
+    dirty(false);
+  } else {
+    await loadFromFile();
+  }
 })();
 </script>
 </body>
