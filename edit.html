@@ -277,13 +277,13 @@ if (PERSONAL){
     download(cardId + ".json",
              JSON.stringify({profiles: {[cardId]: collect()}}, null, 2),
              "application/json");
-    say("Saved — send that file to the admin.");
+    say("Downloaded — send that file to the admin.");
   });
   addButton("Reload mine", false, () => { load(); say("Reloaded."); });
 } else {
-  addButton("Save config.json", true, () => {
+  addButton("Download config.json", true, () => {
     download("config.json", JSON.stringify(collect(), null, 2), "application/json");
-    say("Saved — put it next to index.html.");
+    say("Downloaded — commit it next to index.html to publish.");
   });
   addButton("Copy JSON", false, async () => {
     await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
