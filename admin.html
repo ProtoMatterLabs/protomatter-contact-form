@@ -112,6 +112,14 @@
       <button class="ok" id="csv">Download CSV for NFC Studio</button>
       <button id="links">Copy links</button>
     </div>
+    <div class="bar">
+      <button id="openLive">Open their card</button>
+      <button id="openTheirEdit">Open their editor</button>
+      <button id="copyEditLink">Copy editor link</button>
+    </div>
+    <div class="bar">
+      <button id="mergeOne">Paste someone's details…</button>
+    </div>
     <p class="note" id="count"></p>
   </div>
 
@@ -124,8 +132,9 @@
           <label for="cardId">Card ID (appears in the link and every email)</label>
           <input id="cardId" type="text" placeholder="ada_lovelace">
         </div>
-        <div style="flex:0 0 150px; display:flex; align-items:flex-end">
-          <button id="fromName" style="width:100%">Use the name</button>
+        <div style="flex:0 0 220px; display:flex; align-items:flex-end; gap:6px">
+          <button id="fromName" style="flex:1">Use the name</button>
+          <button id="copyId" style="flex:1">Copy ID</button>
         </div>
       </div>
       <p class="note" id="idNote"></p>
@@ -465,6 +474,63 @@ document.getElementById("csv").addEventListener("click", () => {
   });
   download("cards.csv", lines.join("\n") + "\n", "text/csv");
   say("Exported " + ids.length + " card(s).");
+});
+
+function editLinkFor(id){ return baseUrl() + "edit.html?c=" + encodeURIComponent(id); }
+
+function requireCurrent(){
+  if (!current){ say("Pick a profile first."); return null; }
+  return current;
+}
+
+/* The id is what ties a physical card to a person: it is in the link, in the
+   QR, and in every submission. Copy it on its own so it can be pasted into the
+   NFC Card Studio, which rebuilds the same link from the page URL plus the id. */
+document.getElementById("copyId").addEventListener("click", async () => {
+  const id = requireCurrent();
+  if (!id) return;
+  await navigator.clipboard.writeText(id);
+  say("Copied " + id + " — paste it into NFC Card Studio's Card ID box.");
+});
+
+document.getElementById("openLive").addEventListener("click", () => {
+  const id = requireCurrent();
+  if (id) window.open(linkFor(id), "_blank", "noopener");
+});
+
+/* The per-person editor. Hand this link to whoever the card belongs to:
+   it shows only their own fields and hands back a snippet, because a static
+   page cannot publish on their behalf. */
+document.getElementById("openTheirEdit").addEventListener("click", () => {
+  const id = requireCurrent();
+  if (id) window.open(editLinkFor(id), "_blank", "noopener");
+});
+
+document.getElementById("copyEditLink").addEventListener("click", async () => {
+  const ids = exportIds();
+  if (!ids.length) return say("Nothing selected.");
+  const text = ids.map(id => (profiles[id].name || id) + ": " + editLinkFor(id)).join(String.fromCharCode(10));
+  await navigator.clipboard.writeText(text);
+  say("Copied " + ids.length + " editor link(s).");
+});
+
+/* Merge what a person sent back, rather than making the admin retype it. */
+document.getElementById("mergeOne").addEventListener("click", () => {
+  const pasted = prompt("Paste the JSON they sent you:");
+  if (!pasted) return;
+  let data;
+  try { data = JSON.parse(pasted); }
+  catch (e){ return say("That is not valid JSON."); }
+  const incoming = data.profiles || data;
+  let count = 0;
+  Object.keys(incoming).forEach(id => {
+    profiles[id] = Object.assign({}, profiles[id], incoming[id]);
+    count++;
+  });
+  if (!count) return say("No profiles in that.");
+  current = Object.keys(incoming)[0];
+  edit(current);
+  say("Merged " + count + " profile(s). Save profiles.json to publish.");
 });
 
 document.getElementById("links").addEventListener("click", async () => {

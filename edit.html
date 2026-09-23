@@ -3,84 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Edit my contact page</title>
+<title>Edit my card</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
   :root{
     --bg:#101014; --panel:#1a1a20; --line:#2c2c36; --ink:#f2f2f6;
-    --dim:#9494a2; --accent:#d62828; --ok:#2e9e5b; --r:12px;
+    --dim:#9494a2; --accent:#d62828; --ok:#2e9e5b; --warn:#c9a227; --r:12px;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  }
+  body{margin:0; background:var(--bg); color:var(--ink);
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   header{padding:18px 22px; border-bottom:1px solid var(--line)}
   header h1{margin:0; font-size:19px}
   header p{margin:4px 0 0; color:var(--dim); font-size:13px}
+  .who{display:inline-block; margin-top:8px; padding:4px 10px; border-radius:20px;
+       background:#22222c; font-size:13px}
+  .who b{color:var(--accent)}
 
   .cols{display:flex; gap:22px; padding:22px; align-items:flex-start; flex-wrap:wrap}
-  .editor{flex:1 1 440px; min-width:320px}
+  .editor{flex:1 1 430px; min-width:310px}
   .preview{flex:0 0 400px}
 
-  fieldset{
-    border:1px solid var(--line); border-radius:var(--r);
-    padding:14px 16px 18px; margin:0 0 16px;
-  }
-  legend{padding:0 6px; color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.06em}
+  fieldset{border:1px solid var(--line); border-radius:var(--r);
+           padding:14px 16px 18px; margin:0 0 16px}
+  legend{padding:0 6px; color:var(--dim); font-size:12px;
+         text-transform:uppercase; letter-spacing:.06em}
   label{display:block; font-size:12.5px; color:var(--dim); margin:12px 0 5px}
   label:first-of-type{margin-top:0}
-  input[type=text],input[type=email],input[type=tel],input[type=url],textarea,select{
-    width:100%; padding:10px 11px; font:inherit; font-size:14px;
-    color:var(--ink); background:#0c0c10;
-    border:1px solid var(--line); border-radius:9px;
-  }
+  input,textarea,select{width:100%; padding:10px 11px; font:inherit; font-size:14px;
+    color:var(--ink); background:#0c0c10; border:1px solid var(--line); border-radius:9px}
   textarea{min-height:76px; resize:vertical; font-family:Consolas,monospace; font-size:13px}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
   .row{display:flex; gap:10px}
   .row>*{flex:1}
-  .check{display:flex; align-items:center; gap:8px; margin:10px 0 0; color:var(--ink); font-size:14px}
+  .check{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-size:14px}
   .check input{width:16px;height:16px}
   .note{color:var(--dim); font-size:12px; margin-top:6px}
+  .inherit{white-space:pre-wrap; font-family:Consolas,monospace; font-size:11px;
+           color:#6d6d7a; border-left:2px solid var(--line); padding-left:8px; margin-top:5px}
 
-  .bar{
-    position:sticky; bottom:0; background:var(--bg);
-    border-top:1px solid var(--line); padding:14px 0 4px;
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-  }
-  button{
-    padding:11px 16px; font:inherit; font-size:14px; font-weight:600;
-    border-radius:var(--r); border:1px solid var(--line);
-    background:#24242c; color:var(--ink); cursor:pointer;
-  }
+  .bar{position:sticky; bottom:0; background:var(--bg); border-top:1px solid var(--line);
+       padding:14px 0 6px; display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  button{padding:11px 16px; font:inherit; font-size:14px; font-weight:600;
+         border-radius:var(--r); border:1px solid var(--line);
+         background:#24242c; color:var(--ink); cursor:pointer}
   button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
   button:active{transform:translateY(1px)}
   .status{color:var(--ok); font-size:13px}
 
-  iframe{
-    width:400px; height:720px; border:1px solid var(--line);
-    border-radius:var(--r); background:#fff;
-  }
+  iframe{width:400px; height:700px; border:1px solid var(--line);
+         border-radius:var(--r); background:#fff}
   .preview h3{margin:0 0 8px; font-size:13px; color:var(--dim);
               text-transform:uppercase; letter-spacing:.06em}
   details{margin-top:14px}
   summary{cursor:pointer; color:var(--dim); font-size:13px}
-  pre{
-    background:#0c0c10; border:1px solid var(--line); border-radius:9px;
-    padding:12px; overflow:auto; font-size:12px; max-height:260px;
-  }
+  pre{background:#0c0c10; border:1px solid var(--line); border-radius:9px;
+      padding:12px; overflow:auto; font-size:12px; max-height:240px}
+  .hand{background:#2b2410; border:1px solid #6a5a1c; color:#e8cf7a;
+        padding:11px 13px; border-radius:10px; font-size:12.5px; margin:0 22px 4px}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Edit my contact page</h1>
-  <p>Change anything, watch the preview, then save <code>config.json</code> and put it
-     next to <code>index.html</code>. No server involved &mdash; the page reads that file.</p>
+  <h1 id="title">Edit my card</h1>
+  <p id="sub">Change anything and watch the preview.</p>
+  <div class="who" id="whoChip" style="display:none"></div>
 </header>
 
-<div class="cols">
+<p class="hand" id="handoff" style="display:none">
+  There is no login here, so this page cannot publish for you. Make your changes,
+  press <b>Send my details to the admin</b>, and they paste it in. Your edits go
+  live on their next save.
+</p>
 
+<div class="cols">
   <div class="editor">
 
     <fieldset>
@@ -89,75 +86,63 @@
         <div><label for="name">Name</label><input id="name" type="text"></div>
         <div><label for="role">Role</label><input id="role" type="text" placeholder="CEO"></div>
       </div>
-      <label for="company">Company</label><input id="company" type="text">
+      <label for="company">Team / company</label><input id="company" type="text">
       <div class="row">
         <div><label for="email">Email</label><input id="email" type="email"></div>
         <div><label for="phone">Phone</label><input id="phone" type="tel" placeholder="+15555551234"></div>
       </div>
-      <p class="note">Phone is optional. Leave it blank and the Text&nbsp;me and
-         Call&nbsp;me actions simply do not appear.</p>
+      <p class="note">Leave the phone blank and the Text&nbsp;me and Call&nbsp;me
+         actions simply do not appear.</p>
       <label for="site">Website</label><input id="site" type="url">
     </fieldset>
 
     <fieldset>
-      <legend>Email action</legend>
-      <label for="emailSubject">Subject they will send</label>
-      <input id="emailSubject" type="text">
-      <p class="note">Worth keeping distinctive: it is what a Gmail filter can match
-         on if you want an automatic reply.</p>
-      <label for="emailBody">Body they will send</label>
-      <textarea id="emailBody"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>Text action</legend>
-      <label for="smsBody">Message they will send</label>
-      <textarea id="smsBody" placeholder="Leave blank to generate one from your details."></textarea>
-      <p class="note">The text is what <em>they</em> send, so putting your details in it
-         means you land in their message history. Only shown when a phone number is set.</p>
-    </fieldset>
-
-    <fieldset>
-      <legend>Their details form</legend>
-      <div class="check"><input id="showForm" type="checkbox"><label for="showForm" style="margin:0">Show the form</label></div>
-      <div class="row" style="margin-top:12px">
-        <div><label for="formTitle">Button title</label><input id="formTitle" type="text"></div>
-        <div><label for="formSub">Button subtitle</label><input id="formSub" type="text"></div>
-      </div>
-      <div class="check"><input id="askPhone" type="checkbox"><label for="askPhone" style="margin:0">Ask for phone</label></div>
-      <div class="check"><input id="askCompany" type="checkbox"><label for="askCompany" style="margin:0">Ask for company</label></div>
-      <div class="check"><input id="askNote" type="checkbox"><label for="askNote" style="margin:0">Ask an open question</label></div>
-      <label for="noteLabel">The question</label><input id="noteLabel" type="text">
-      <p class="note">Every field you add costs completions. Name and email are the
-         two that matter.</p>
-    </fieldset>
-
-    <fieldset>
-      <legend>Where the form posts</legend>
-      <label for="endpoint">Endpoint</label>
-      <input id="endpoint" type="url" placeholder="https://formsubmit.co/ajax/your@email.com">
-      <p class="note">
-        Blank is test mode: the form validates and shows the success screen without
-        sending. To go live, put your address in, submit once, click the confirmation
-        email, then swap your address for the alias it gives you so it is not sitting
-        in the page source.<br><br>
-        If the relay is ever unreachable the page falls back to opening the visitor's
-        own mail app, prefilled &mdash; so a submission is never simply lost.
+      <legend>Message wording &mdash; blank uses the shared default</legend>
+      <p class="note" style="margin:0 0 10px">
+        These are the messages a visitor sends <em>you</em> when they tap
+        <b>Email me</b> or <b>Text me</b>.
       </p>
-      <label for="autoResponse">Automatic reply sent back to them</label>
-      <textarea id="autoResponse"></textarea>
-      <p class="note">Placeholders: <code>{{name}}</code> <code>{{role}}</code>
-         <code>{{company}}</code> <code>{{email}}</code> <code>{{site}}</code></p>
+      <label for="emailSubject">Email subject</label>
+      <input id="emailSubject" type="text">
+      <p class="note inherit" id="inheritSubject"></p>
+      <label for="emailBody">Email body</label>
+      <textarea id="emailBody"></textarea>
+      <p class="note inherit" id="inheritBody"></p>
+      <label for="smsBody">Text message</label>
+      <textarea id="smsBody"></textarea>
+      <p class="note inherit" id="inheritSms"></p>
     </fieldset>
 
-    <div class="bar">
-      <button class="primary" id="download">Save config.json</button>
-      <button id="copy">Copy JSON</button>
-      <button id="load">Load a config.json…</button>
-      <button id="reset">Reload current</button>
-      <span class="status" id="status"></span>
-      <input id="file" type="file" accept=".json,application/json" style="display:none">
+    <!-- Shared-only settings: hidden when editing one person's card. -->
+    <div id="sharedOnly">
+      <fieldset>
+        <legend>Their details form</legend>
+        <div class="check"><input id="showForm" type="checkbox"><label for="showForm" style="margin:0">Show the form</label></div>
+        <div class="row" style="margin-top:12px">
+          <div><label for="formTitle">Button title</label><input id="formTitle" type="text"></div>
+          <div><label for="formSub">Button subtitle</label><input id="formSub" type="text"></div>
+        </div>
+        <div class="check"><input id="askPhone" type="checkbox"><label for="askPhone" style="margin:0">Ask for phone</label></div>
+        <div class="check"><input id="askCompany" type="checkbox"><label for="askCompany" style="margin:0">Ask for company</label></div>
+        <div class="check"><input id="askNote" type="checkbox"><label for="askNote" style="margin:0">Ask an open question</label></div>
+        <label for="noteLabel">The question</label><input id="noteLabel" type="text">
+      </fieldset>
+
+      <fieldset>
+        <legend>Where the form posts</legend>
+        <label for="endpoint">Endpoint</label>
+        <input id="endpoint" type="url" placeholder="https://formsubmit.co/ajax/your@email.com">
+        <p class="note">Blank is test mode: the form validates and shows the success
+           screen without sending. If the relay is unreachable the page falls back to
+           the visitor's own mail app, prefilled, so nothing is lost.</p>
+        <label for="autoResponse">Automatic reply sent back to them</label>
+        <textarea id="autoResponse"></textarea>
+        <p class="note">Placeholders: <code>{{name}}</code> <code>{{role}}</code>
+           <code>{{company}}</code> <code>{{email}}</code> <code>{{site}}</code></p>
+      </fieldset>
     </div>
+
+    <div class="bar" id="bar"></div>
 
     <details>
       <summary>Show the JSON</summary>
@@ -167,90 +152,177 @@
 
   <div class="preview">
     <h3>Live preview</h3>
-    <iframe id="frame" src="index.html?c=preview" title="preview"></iframe>
-    <p class="note">This is the real page, redrawing as you type.</p>
+    <iframe id="frame" title="preview"></iframe>
+    <p class="note" id="liveUrl"></p>
   </div>
-
 </div>
 
 <script>
-const FIELDS = ["name","role","company","email","phone","site","emailSubject",
-                "emailBody","smsBody","endpoint","autoResponse","formTitle",
-                "formSub","noteLabel"];
-const FLAGS = ["showForm","askPhone","askCompany","askNote"];
+/* Two modes, one page:
+     edit.html            the shared config.json  (admin)
+     edit.html?c=<id>     one person's own card   (that person)
+   The second is what you hand out: it shows only what they control, and hands
+   back a snippet because a static page cannot publish on their behalf. */
+const cardId = new URLSearchParams(location.search).get("c") || "";
+const PERSONAL = !!cardId;
 
-const frame = document.getElementById("frame");
-const statusEl = document.getElementById("status");
+const OWN = ["name","role","company","email","phone","site",
+             "emailSubject","emailBody","smsBody"];
+const SHARED_ONLY = ["endpoint","autoResponse","formTitle","formSub","noteLabel"];
+const FLAGS = ["showForm","askPhone","askCompany","askNote"];
+const FIELDS = PERSONAL ? OWN : OWN.concat(SHARED_ONLY);
+
+let shared = {};      // config.json, for showing what a blank field inherits
+let profiles = {};    // profiles.json, only used in personal mode
 let ready = false;
 
+const frame = document.getElementById("frame");
+frame.src = "index.html" + (PERSONAL ? "?c=" + encodeURIComponent(cardId) : "");
+
+function say(message){
+  const el = document.getElementById("status");
+  if (!el) return;
+  el.textContent = message;
+  setTimeout(() => { if (el.textContent === message) el.textContent = ""; }, 4000);
+}
+
 function collect(){
-  const out = {links: []};
-  FIELDS.forEach(k => out[k] = document.getElementById(k).value);
-  FLAGS.forEach(k => out[k] = document.getElementById(k).checked);
+  const out = PERSONAL ? {} : {links: []};
+  FIELDS.forEach(k => {
+    const el = document.getElementById(k);
+    if (!el) return;
+    const value = el.value;
+    // In personal mode an empty box means "inherit", so do not write it out.
+    if (!PERSONAL || value) out[k] = value;
+  });
+  if (!PERSONAL) FLAGS.forEach(k => out[k] = document.getElementById(k).checked);
   return out;
 }
 
-function apply(config){
-  FIELDS.forEach(k => { if (k in config) document.getElementById(k).value = config[k] || ""; });
-  FLAGS.forEach(k => { document.getElementById(k).checked = config[k] !== false; });
-  push();
+function drawInherited(){
+  [["emailSubject","inheritSubject","email subject"],
+   ["emailBody","inheritBody","email body"],
+   ["smsBody","inheritSms","text message"]].forEach(([field, target, label]) => {
+    const el = document.getElementById(target);
+    if (!el) return;
+    const mine = (document.getElementById(field).value || "").trim();
+    if (mine){ el.textContent = "this card uses its own " + label; el.style.color = "#2e9e5b"; return; }
+    const fallback = (shared[field] || "").trim();
+    el.style.color = "";
+    el.textContent = fallback ? "inherits: " + fallback
+      : (field === "smsBody" ? "inherits: a message built from your details"
+                             : "nothing set in the shared config either");
+  });
 }
 
 function push(){
-  const config = collect();
-  document.getElementById("json").textContent = JSON.stringify(config, null, 2);
-  if (ready) frame.contentWindow.postMessage({nfcConfig: config}, "*");
+  const data = collect();
+  document.getElementById("json").textContent = JSON.stringify(data, null, 2);
+  drawInherited();
+  if (ready) frame.contentWindow.postMessage({nfcConfig: data}, "*");
 }
 
-function say(message){
-  statusEl.textContent = message;
-  setTimeout(() => { if (statusEl.textContent === message) statusEl.textContent = ""; }, 4000);
+function apply(data){
+  FIELDS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.value = data[k] || "";
+  });
+  if (!PERSONAL) FLAGS.forEach(k => document.getElementById(k).checked = data[k] !== false);
+  push();
 }
 
-FIELDS.concat(FLAGS).forEach(k => {
+FIELDS.concat(PERSONAL ? [] : FLAGS).forEach(k => {
   const el = document.getElementById(k);
+  if (!el) return;
   el.addEventListener("input", push);
   el.addEventListener("change", push);
 });
-
 frame.addEventListener("load", () => { ready = true; push(); });
 
-document.getElementById("download").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(collect(), null, 2)], {type:"application/json"});
+function download(name, text, type){
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "config.json";
+  a.href = URL.createObjectURL(new Blob([text], {type:type}));
+  a.download = name;
   a.click();
-  say("Saved — put it next to index.html.");
-});
-
-document.getElementById("copy").addEventListener("click", async () => {
-  await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
-  say("Copied.");
-});
-
-document.getElementById("load").addEventListener("click", () => document.getElementById("file").click());
-document.getElementById("file").addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try { apply(JSON.parse(reader.result)); say("Loaded."); }
-    catch (e){ say("That file is not valid JSON."); }
-  };
-  reader.readAsText(file);
-});
-
-async function loadCurrent(){
-  try {
-    const response = await fetch("config.json", {cache:"no-store"});
-    if (response.ok) { apply(await response.json()); return; }
-  } catch (e){ /* first run, or opened from disk */ }
-  apply({});
 }
-document.getElementById("reset").addEventListener("click", () => { loadCurrent(); say("Reloaded."); });
 
-loadCurrent();
+// ---------------------------------------------------------------- buttons
+
+const bar = document.getElementById("bar");
+function addButton(label, primary, handler){
+  const b = document.createElement("button");
+  b.textContent = label;
+  if (primary) b.className = "primary";
+  b.addEventListener("click", handler);
+  bar.appendChild(b);
+  return b;
+}
+
+if (PERSONAL){
+  document.getElementById("sharedOnly").style.display = "none";
+  document.getElementById("handoff").style.display = "block";
+  document.getElementById("title").textContent = "Edit my card";
+  document.getElementById("sub").textContent =
+    "Only your own details. Everything else comes from the shared settings.";
+  const chip = document.getElementById("whoChip");
+  chip.style.display = "inline-block";
+  chip.innerHTML = "card <b>" + cardId + "</b>";
+
+  addButton("Send my details to the admin", true, async () => {
+    const payload = JSON.stringify({profiles: {[cardId]: collect()}}, null, 2);
+    try { await navigator.clipboard.writeText(payload); say("Copied — send that to the admin."); }
+    catch (e){ say("Copy failed; use Download instead."); }
+  });
+  addButton("Download my details", false, () => {
+    download(cardId + ".json",
+             JSON.stringify({profiles: {[cardId]: collect()}}, null, 2),
+             "application/json");
+    say("Saved — send that file to the admin.");
+  });
+  addButton("Reload mine", false, () => { load(); say("Reloaded."); });
+} else {
+  addButton("Save config.json", true, () => {
+    download("config.json", JSON.stringify(collect(), null, 2), "application/json");
+    say("Saved — put it next to index.html.");
+  });
+  addButton("Copy JSON", false, async () => {
+    await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
+    say("Copied.");
+  });
+  addButton("Reload current", false, () => { load(); say("Reloaded."); });
+}
+
+const statusSpan = document.createElement("span");
+statusSpan.className = "status";
+statusSpan.id = "status";
+bar.appendChild(statusSpan);
+
+// ------------------------------------------------------------------- load
+
+async function fetchJson(path){
+  try {
+    const response = await fetch(path, {cache:"no-store"});
+    if (response.ok) return await response.json();
+  } catch (e){ /* absent is fine */ }
+  return null;
+}
+
+async function load(){
+  shared = (await fetchJson("config.json")) || {};
+  if (PERSONAL){
+    const book = await fetchJson("profiles.json");
+    profiles = (book && book.profiles) || {};
+    apply(profiles[cardId] || {});
+    document.getElementById("liveUrl").textContent =
+      location.href.replace(/edit\.html.*$/, "") + "?c=" + cardId;
+  } else {
+    apply(shared);
+    document.getElementById("liveUrl").textContent =
+      "This is the shared default every card starts from.";
+  }
+}
+
+load();
 </script>
 </body>
 </html>
