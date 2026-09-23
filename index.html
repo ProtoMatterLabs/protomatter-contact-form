@@ -205,6 +205,9 @@ const DEFAULTS = {
 };
 
 let CONFIG = Object.assign({}, DEFAULTS);
+// What a previewed profile gets merged over, so the preview keeps the
+// shared settings (endpoint, auto-reply) instead of appearing switched off.
+let BASE = Object.assign({}, DEFAULTS);
 const cardId = new URLSearchParams(location.search).get("c") || "";
 
 function vcard(c){
@@ -420,7 +423,7 @@ form.addEventListener("submit", async (event) => {
 // Live preview: edit.html posts a config in and the page redraws.
 window.addEventListener("message", (event) => {
   if (event.data && event.data.nfcConfig){
-    CONFIG = Object.assign({}, DEFAULTS, event.data.nfcConfig);
+    CONFIG = Object.assign({}, BASE, event.data.nfcConfig);
     render();
   }
 });
@@ -441,7 +444,8 @@ async function loadJson(path){
    profile only carries what makes it different. */
 (async () => {
   const shared = await loadJson("config.json");
-  if (shared) CONFIG = Object.assign({}, DEFAULTS, shared);
+  if (shared) BASE = Object.assign({}, DEFAULTS, shared);
+  CONFIG = Object.assign({}, BASE);
 
   if (cardId){
     const book = await loadJson("profiles.json");
