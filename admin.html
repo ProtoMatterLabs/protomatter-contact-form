@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card admin — profiles</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --bg:#101014; --panel:#1a1a20; --line:#2c2c36; --ink:#f2f2f6;
+    --dim:#9494a2; --accent:#d62828; --ok:#2e9e5b; --warn:#c9a227; --r:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink);
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:16px 20px; border-bottom:1px solid var(--line);
+         display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+  header h1{margin:0; font-size:18px}
+  header .grow{flex:1}
+  .base{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--dim)}
+  .base input{width:360px}
+
+  .cols{display:flex; gap:18px; padding:18px; align-items:flex-start; flex-wrap:wrap}
+  .list{flex:0 0 340px}
+  .editor{flex:1 1 400px; min-width:320px}
+  .preview{flex:0 0 380px}
+
+  input,textarea,select{
+    padding:9px 10px; font:inherit; font-size:14px; color:var(--ink);
+    background:#0c0c10; border:1px solid var(--line); border-radius:9px; width:100%;
+  }
+  input:focus,textarea:focus{outline:2px solid var(--accent); outline-offset:1px}
+  textarea{min-height:70px; resize:vertical; font-family:Consolas,monospace; font-size:13px}
+  label{display:block; font-size:12px; color:var(--dim); margin:11px 0 4px}
+  label:first-of-type{margin-top:0}
+  .row{display:flex; gap:9px}
+  .row>*{flex:1}
+
+  button{padding:9px 13px; font:inherit; font-size:13px; font-weight:600;
+         border-radius:10px; border:1px solid var(--line);
+         background:#24242c; color:var(--ink); cursor:pointer}
+  button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  button.ok{background:var(--ok); border-color:var(--ok); color:#fff}
+  button:active{transform:translateY(1px)}
+  .bar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px}
+
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th{text-align:left; color:var(--dim); font-weight:500; font-size:11px;
+     text-transform:uppercase; letter-spacing:.05em; padding:6px 6px; border-bottom:1px solid var(--line)}
+  td{padding:7px 6px; border-bottom:1px solid #202028}
+  tr.sel td{background:#22222c}
+  tr:hover td{background:#1c1c24; cursor:pointer}
+  td.id{font-family:Consolas,monospace; color:var(--dim)}
+  td.blank{color:var(--warn)}
+  .cb{width:26px}
+  .scroll{max-height:520px; overflow:auto; border:1px solid var(--line); border-radius:var(--r)}
+
+  fieldset{border:1px solid var(--line); border-radius:var(--r);
+           padding:12px 14px 16px; margin:0 0 14px}
+  legend{padding:0 6px; color:var(--dim); font-size:11px;
+         text-transform:uppercase; letter-spacing:.06em}
+  iframe{width:380px; height:660px; border:1px solid var(--line);
+         border-radius:var(--r); background:#fff}
+  .note{color:var(--dim); font-size:12px; margin-top:6px}
+  .status{font-size:13px; color:var(--ok)}
+  .warnbox{background:#2b2410; border:1px solid #6a5a1c; color:#e8cf7a;
+           padding:10px 12px; border-radius:10px; font-size:12.5px; margin:0 18px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Card admin</h1>
+  <div class="base">
+    <span>Page URL</span>
+    <input id="baseUrl" type="url" placeholder="https://protomatterlabs.github.io/protomatter-contact-form/">
+  </div>
+  <div class="grow"></div>
+  <span class="status" id="status"></span>
+</header>
+
+<p class="warnbox">
+  Everything here ends up in a public <code>profiles.json</code>. There is no login on a
+  static site, so anyone with the link can read every profile and anyone with the repo can
+  edit them. Fine for details you hand out on a card; not a place for anything private.
+</p>
+
+<div class="cols">
+
+  <!-- ------------------------------------------------ list -->
+  <div class="list">
+    <div class="bar">
+      <button class="primary" id="add">New profile</button>
+      <button id="addMany">Add 10 blanks</button>
+      <button id="del">Delete</button>
+    </div>
+    <div class="bar">
+      <button id="all">Select all</button>
+      <button id="none">Select none</button>
+      <button id="blanks">Only filled</button>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th class="cb"></th><th>ID</th><th>Name</th><th>Role</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="bar" style="margin-top:12px">
+      <button class="ok" id="csv">Download CSV for NFC Studio</button>
+      <button id="links">Copy links</button>
+    </div>
+    <p class="note" id="count"></p>
+  </div>
+
+  <!-- ------------------------------------------------ editor -->
+  <div class="editor">
+    <fieldset>
+      <legend>Profile <span id="whichId"></span></legend>
+      <div class="row">
+        <div><label for="name">Name</label><input id="name" type="text"></div>
+        <div><label for="role">Role</label><input id="role" type="text"></div>
+      </div>
+      <label for="company">Team / company</label><input id="company" type="text">
+      <div class="row">
+        <div><label for="email">Email</label><input id="email" type="email"></div>
+        <div><label for="phone">Phone</label><input id="phone" type="tel" placeholder="+15555551234"></div>
+      </div>
+      <label for="site">Website</label><input id="site" type="url">
+      <p class="note">Blank fields fall back to the shared <code>config.json</code>,
+         so you only fill in what differs for this person.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Overrides for this person</legend>
+      <label for="emailSubject">Email subject</label><input id="emailSubject" type="text">
+      <label for="emailBody">Email body</label><textarea id="emailBody"></textarea>
+      <label for="smsBody">Text message</label><textarea id="smsBody"></textarea>
+    </fieldset>
+
+    <div class="bar">
+      <button class="primary" id="save">Save profiles.json</button>
+      <button id="copyJson">Copy JSON</button>
+      <button id="load">Load profiles.json…</button>
+      <input id="file" type="file" accept=".json,application/json" style="display:none">
+    </div>
+    <p class="note">
+      Saving downloads the file. Put it next to <code>index.html</code> and commit it;
+      the pages read it on load.
+    </p>
+  </div>
+
+  <!-- ------------------------------------------------ preview -->
+  <div class="preview">
+    <iframe id="frame" src="index.html" title="preview"></iframe>
+    <p class="note" id="previewUrl"></p>
+  </div>
+
+</div>
+
+<script>
+const FIELDS = ["name","role","company","email","phone","site",
+                "emailSubject","emailBody","smsBody"];
+
+let profiles = {};        // id -> profile object
+let selected = new Set(); // ids ticked for export
+let current = null;       // id being edited
+let ready = false;
+
+const frame = document.getElementById("frame");
+const statusEl = document.getElementById("status");
+
+function say(message){
+  statusEl.textContent = message;
+  setTimeout(() => { if (statusEl.textContent === message) statusEl.textContent = ""; }, 4000);
+}
+
+/* Short, unambiguous ids. No 0/O/1/l: these get read off a printed card and
+   typed back by a human often enough to matter. */
+const ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
+function newId(){
+  let id;
+  do {
+    id = Array.from({length:6}, () =>
+      ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join("");
+  } while (profiles[id]);
+  return id;
+}
+
+function baseUrl(){
+  let base = document.getElementById("baseUrl").value.trim();
+  if (!base) base = location.href.replace(/[^/]*$/, "");
+  if (!base.endsWith("/")) base += "/";
+  return base;
+}
+function linkFor(id){ return baseUrl() + "?c=" + id; }
+
+function isBlank(profile){
+  return !FIELDS.some(k => (profile[k] || "").trim());
+}
+
+function drawList(){
+  const body = document.getElementById("rows");
+  body.innerHTML = "";
+  const ids = Object.keys(profiles);
+
+  ids.forEach(id => {
+    const profile = profiles[id];
+    const tr = document.createElement("tr");
+    if (id === current) tr.className = "sel";
+
+    const cb = document.createElement("td");
+    cb.className = "cb";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.style.width = "15px";
+    box.checked = selected.has(id);
+    box.addEventListener("click", (event) => {
+      event.stopPropagation();
+      box.checked ? selected.add(id) : selected.delete(id);
+      drawCount();
+    });
+    cb.appendChild(box);
+
+    const idCell = document.createElement("td");
+    idCell.className = "id";
+    idCell.textContent = id;
+
+    const nameCell = document.createElement("td");
+    if (isBlank(profile)){ nameCell.className = "blank"; nameCell.textContent = "(blank)"; }
+    else nameCell.textContent = profile.name || "(no name)";
+
+    const roleCell = document.createElement("td");
+    roleCell.textContent = profile.role || "";
+
+    tr.append(cb, idCell, nameCell, roleCell);
+    tr.addEventListener("click", () => edit(id));
+    body.appendChild(tr);
+  });
+
+  drawCount();
+}
+
+function drawCount(){
+  const total = Object.keys(profiles).length;
+  const filled = Object.values(profiles).filter(p => !isBlank(p)).length;
+  document.getElementById("count").textContent =
+    total + " profiles · " + filled + " filled · " + selected.size + " selected";
+}
+
+function edit(id){
+  current = id;
+  const profile = profiles[id] || {};
+  FIELDS.forEach(k => document.getElementById(k).value = profile[k] || "");
+  document.getElementById("whichId").textContent = "— " + id;
+  drawList();
+  pushPreview();
+}
+
+function collect(){
+  const out = {};
+  FIELDS.forEach(k => {
+    const value = document.getElementById(k).value;
+    if (value) out[k] = value;     // omit empties so config.json still shows through
+  });
+  return out;
+}
+
+function onEdit(){
+  if (!current) return;
+  profiles[current] = collect();
+  drawList();
+  pushPreview();
+}
+
+function pushPreview(){
+  if (!ready || !current) return;
+  frame.contentWindow.postMessage({nfcConfig: profiles[current]}, "*");
+  document.getElementById("previewUrl").textContent = linkFor(current);
+}
+
+FIELDS.forEach(k => {
+  const el = document.getElementById(k);
+  el.addEventListener("input", onEdit);
+  el.addEventListener("change", onEdit);
+});
+document.getElementById("baseUrl").addEventListener("input", () => { drawCount(); pushPreview(); });
+
+frame.addEventListener("load", () => { ready = true; pushPreview(); });
+
+// ------------------------------------------------------------- list actions
+
+document.getElementById("add").addEventListener("click", () => {
+  const id = newId();
+  profiles[id] = {};
+  selected.add(id);
+  edit(id);
+  say("Added " + id);
+});
+
+document.getElementById("addMany").addEventListener("click", () => {
+  for (let i = 0; i < 10; i++){ const id = newId(); profiles[id] = {}; selected.add(id); }
+  drawList();
+  say("Added 10 blank profiles.");
+});
+
+document.getElementById("del").addEventListener("click", () => {
+  if (!selected.size) return say("Nothing selected.");
+  if (!confirm("Delete " + selected.size + " profile(s)? This cannot be undone.")) return;
+  selected.forEach(id => { delete profiles[id]; if (current === id) current = null; });
+  selected.clear();
+  drawList();
+});
+
+document.getElementById("all").addEventListener("click", () => {
+  selected = new Set(Object.keys(profiles)); drawList();
+});
+document.getElementById("none").addEventListener("click", () => { selected.clear(); drawList(); });
+document.getElementById("blanks").addEventListener("click", () => {
+  selected = new Set(Object.keys(profiles).filter(id => !isBlank(profiles[id])));
+  drawList();
+  say("Selected the filled ones.");
+});
+
+// ---------------------------------------------------------------- export
+
+function exportIds(){
+  return selected.size ? Object.keys(profiles).filter(id => selected.has(id))
+                       : Object.keys(profiles);
+}
+
+function download(name, text, type){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], {type:type}));
+  a.download = name;
+  a.click();
+}
+
+function csvCell(value){
+  const s = String(value == null ? "" : value);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+document.getElementById("csv").addEventListener("click", () => {
+  const ids = exportIds();
+  if (!ids.length) return say("No profiles to export.");
+  // Header matches what the NFC Card Studio Batch tab reads. Only `link` is
+  // required there; name and caption are carried through for legibility.
+  const lines = ["link,name,caption"];
+  ids.forEach(id => {
+    const p = profiles[id] || {};
+    lines.push([csvCell(linkFor(id)), csvCell(p.name || id), csvCell(p.name || id)].join(","));
+  });
+  download("cards.csv", lines.join("\n") + "\n", "text/csv");
+  say("Exported " + ids.length + " card(s).");
+});
+
+document.getElementById("links").addEventListener("click", async () => {
+  const ids = exportIds();
+  await navigator.clipboard.writeText(ids.map(linkFor).join("\n"));
+  say("Copied " + ids.length + " link(s).");
+});
+
+// ------------------------------------------------------------ persistence
+
+document.getElementById("save").addEventListener("click", () => {
+  download("profiles.json",
+           JSON.stringify({profiles: profiles}, null, 2) + "\n",
+           "application/json");
+  say("Saved — commit it next to index.html.");
+});
+
+document.getElementById("copyJson").addEventListener("click", async () => {
+  await navigator.clipboard.writeText(JSON.stringify({profiles: profiles}, null, 2));
+  say("Copied.");
+});
+
+document.getElementById("load").addEventListener("click", () => document.getElementById("file").click());
+document.getElementById("file").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      profiles = data.profiles || data;
+      selected.clear();
+      current = Object.keys(profiles)[0] || null;
+      if (current) edit(current); else drawList();
+      say("Loaded " + Object.keys(profiles).length + " profiles.");
+    } catch (e){ say("That file is not valid JSON."); }
+  };
+  reader.readAsText(file);
+});
+
+(async () => {
+  document.getElementById("baseUrl").value = location.href.replace(/[^/]*$/, "");
+  try {
+    const response = await fetch("profiles.json", {cache:"no-store"});
+    if (response.ok){
+      const data = await response.json();
+      profiles = data.profiles || {};
+    }
+  } catch (e){ /* first run */ }
+  current = Object.keys(profiles)[0] || null;
+  if (current) edit(current); else drawList();
+})();
+</script>
+</body>
+</html>

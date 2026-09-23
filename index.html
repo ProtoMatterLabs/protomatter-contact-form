@@ -9,7 +9,7 @@
      Anyone with the link still gets in; crawlers do not. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <meta name="googlebot" content="noindex, nofollow">
-<meta name="referrer" content="no-referrer">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <style>
   :root{
     --bg:#0d0d10; --card:#16161b; --line:#292932; --ink:#f3f3f6;
@@ -364,7 +364,15 @@ form.addEventListener("submit", async (event) => {
       headers:{"Content-Type":"application/json", "Accept":"application/json"},
       body:JSON.stringify(Object.fromEntries(new FormData(form)))
     });
+    // The relay answers 200 even when it refuses, with the reason in the
+    // body. Trusting the status code alone shows a green tick for a
+    // submission that was thrown away.
     if (!response.ok) throw new Error("HTTP " + response.status);
+    let payload = null;
+    try { payload = await response.json(); } catch (e){ /* not JSON: treat as ok */ }
+    if (payload && String(payload.success) === "false"){
+      throw new Error(payload.message || "the form relay refused the submission");
+    }
     succeed();
   } catch (e){
     // The relay is the only third-party thing here, so never let it strand
@@ -372,7 +380,8 @@ form.addEventListener("submit", async (event) => {
     const body = "Name: " + name + "\nEmail: " + email +
                  "\nPhone: " + form.phone.value + "\nCompany: " + form.company.value +
                  "\n\n" + form.note.value;
-    fail('Could not send just now. <a style="color:#ff8a80" href="mailto:' + CONFIG.email +
+    const why = (e && e.message) ? " (" + e.message + ")" : "";
+    fail('Could not send' + why + '. <a style="color:#ff8a80" href="mailto:' + CONFIG.email +
          "?subject=" + encodeURIComponent("Contact from card " + cardId) +
          "&body=" + encodeURIComponent(body) + '">Email it instead</a>.');
   }
