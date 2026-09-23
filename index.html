@@ -139,6 +139,11 @@
       <input type="hidden" name="_autoresponse" id="autoField" value="">
       <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
       <input type="hidden" name="card" id="cardField" value="">
+      <!-- Filled in at submit time, once their address is known. These arrive
+           in the notification email as clickable links, so replying with your
+           details is one tap from the inbox. -->
+      <input type="hidden" name="reply_by_email" id="replyEmail" value="">
+      <input type="hidden" name="reply_by_text" id="replyText" value="">
 
       <button class="send" id="sendBtn" type="submit">Send</button>
       <div class="err" id="err"></div>
@@ -345,6 +350,38 @@ form.addEventListener("submit", async (event) => {
   const email = form.email.value.trim();
   if (!name) return fail("Please add your name.");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("That email does not look right.");
+
+  // Build the reply links now, because only now do we know their address.
+  // These ride along in the notification email as clickable links: tapping one
+  // opens a message back to them already filled in with your details, so the
+  // exchange closes from the inbox without opening anything else.
+  // Filter only the optional CONFIG values, not the deliberate blank lines --
+  // a blank string is falsy, so filtering the whole array flattens the layout.
+  const mine = [
+    CONFIG.name,
+    [CONFIG.role, CONFIG.company].filter(Boolean).join(" at "),
+    CONFIG.email,
+    CONFIG.phone,
+    CONFIG.site
+  ].filter(Boolean);
+
+  const replyBody = [
+    "Hi " + name.split(/\s+/)[0] + " — great to meet you.",
+    "",
+    "Here are my details:",
+    ...mine,
+    ""
+  ].join("\n");
+
+  document.getElementById("replyEmail").value =
+    "mailto:" + email +
+    "?subject=" + encodeURIComponent("Great to meet you") +
+    "&body=" + encodeURIComponent(replyBody);
+
+  const theirPhone = form.phone.value.trim().replace(/[^\d+]/g, "");
+  document.getElementById("replyText").value = theirPhone
+    ? "sms:" + theirPhone + "?body=" + encodeURIComponent(replyBody)
+    : "";
 
   sendBtn.disabled = true;
   sendBtn.textContent = "Sending…";
