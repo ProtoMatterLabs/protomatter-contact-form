@@ -405,10 +405,13 @@ form.addEventListener("submit", async (event) => {
     // body. Trusting the status code alone shows a green tick for a
     // submission that was thrown away.
     if (!response.ok) throw new Error("HTTP " + response.status);
-    let payload = null;
-    try { payload = await response.json(); } catch (e){ /* not JSON: treat as ok */ }
-    if (payload && String(payload.success) === "false"){
-      throw new Error(payload.message || "the form relay refused the submission");
+    // Deliberately not called `payload`: the request body above is already
+    // named that, and a second `let` in the same block puts the first in the
+    // temporal dead zone - the request then throws before it is ever sent.
+    let answer = null;
+    try { answer = await response.json(); } catch (e){ /* not JSON: treat as ok */ }
+    if (answer && String(answer.success) === "false"){
+      throw new Error(answer.message || "the form relay refused the submission");
     }
     succeed();
   } catch (e){

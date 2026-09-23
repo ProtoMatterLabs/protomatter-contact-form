@@ -545,7 +545,8 @@ document.getElementById("save").addEventListener("click", () => {
   download("profiles.json",
            JSON.stringify({profiles: profiles}, null, 2) + "\n",
            "application/json");
-  say("Saved — commit it next to index.html.");
+  dirty(false);
+  say("Saved — now commit it next to index.html.");
 });
 
 document.getElementById("copyJson").addEventListener("click", async () => {
