@@ -201,6 +201,10 @@ const DEFAULTS = {
   ccOwner:true,    // also copy this profile's own email
   ccMode:"bcc",    // "bcc" keeps the copied addresses off the header
   accent:"",      // brand colour; blank keeps the default
+  background:"",  // page background: a colour, or url(...) for an image
+  allowAccent:true,   // may the card owner pick their own colour
+  // Which of the automatic actions appear. Absent means shown.
+  show:{contact:true, email:true, text:true, call:true, site:true, form:true},
   photo:"",       // image url, path, or data uri
   links:[],       // extra buttons: {label, sub, url, icon}
   pageTitle:"",                                  // per-card override
@@ -255,6 +259,17 @@ function render(){
   // Accent drives the avatar, the primary button and every focus ring, so one
   // value re-skins the whole card.
   document.documentElement.style.setProperty("--accent", c.accent || "#d62828");
+
+  // Branding set centrally. A bare colour goes straight in; anything else is
+  // treated as an image so a url() or a gradient both work.
+  if (c.background){
+    const value = /^(#|rgb|hsl)/i.test(c.background.trim())
+      ? c.background.trim()
+      : (/^url\(|gradient/i.test(c.background.trim())
+          ? c.background.trim()
+          : "url('" + c.background.trim() + "') center/cover no-repeat fixed");
+    document.body.style.background = value;
+  }
 
   /* The tab title is also the history entry. Ten cards all called
      "ProtoMatter - contact" are indistinguishable a week later, so name it
@@ -313,25 +328,32 @@ function render(){
   document.getElementById("noteWrap").classList.toggle("hidden", !c.askNote);
   document.getElementById("noteLabel").textContent = c.noteLabel || "Notes";
 
+  /* A missing entry means shown: a card written before these toggles existed
+     should not lose its buttons. */
+  const show = Object.assign({contact:true, email:true, text:true, call:true,
+                              site:true, form:true}, c.show || {});
+
   const acts = [];
-  if (c.name){
+  if (show.contact && c.name){
     const url = URL.createObjectURL(new Blob([vcard(c)], {type:"text/vcard;charset=utf-8"}));
     acts.push({primary:true, icon:"\u{1F4C7}", label:"Save my contact",
                sub:"adds me to your phone", href:url,
                download:c.name.replace(/\s+/g,"-").toLowerCase() + ".vcf"});
   }
-  if (c.email){
+  if (show.email && c.email){
     acts.push({icon:"✉", label:"Email me", sub:"opens a message, already addressed",
                href:"mailto:" + c.email +
                     "?subject=" + encodeURIComponent(c.emailSubject || "") +
                     "&body=" + encodeURIComponent(c.emailBody || "")});
   }
-  if (c.phone){
+  if (show.text && c.phone){
     acts.push({icon:"\u{1F4AC}", label:"Text me", sub:"opens a text, already written",
                href:"sms:" + c.phone + "?body=" + encodeURIComponent(smsBody)});
+  }
+  if (show.call && c.phone){
     acts.push({icon:"\u{1F4DE}", label:"Call me", sub:c.phone, href:"tel:" + c.phone});
   }
-  if (c.site){
+  if (show.site && c.site){
     acts.push({icon:"\u{1F310}", label:"Our website",
                sub:c.site.replace(/^https?:\/\//,""), href:c.site});
   }
@@ -341,7 +363,7 @@ function render(){
     acts.push({icon:l.icon || "\u{1F517}", label:l.label || l.url,
                sub:l.sub || "", href:l.url});
   });
-  if (c.showForm){
+  if (show.form && c.showForm){
     acts.push({icon:"\u{1F4E4}", label:c.formTitle, sub:c.formSub, action:"form"});
   }
 

@@ -13,32 +13,58 @@
   *{box-sizing:border-box}
   body{margin:0; background:var(--bg); color:var(--ink);
        font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-  header{padding:18px 22px; border-bottom:1px solid var(--line)}
+
+  /* Status sits at the very top and stays there while scrolling. */
+  #statusBar{position:sticky; top:0; z-index:5; padding:10px 22px;
+             background:#15251c; border-bottom:1px solid #2e6b46; color:#9fe0bb;
+             font-size:13.5px; display:flex; gap:8px; align-items:center}
+  #statusBar.unsaved{background:#2b2410; border-bottom-color:#6a5a1c; color:#e8cf7a}
+  #statusBar b{font-weight:600}
+
+  header{padding:16px 22px 6px}
   header h1{margin:0; font-size:19px}
   header p{margin:4px 0 0; color:var(--dim); font-size:13px}
-  .who{display:inline-block; margin-top:8px; padding:4px 10px; border-radius:20px;
-       background:#22222c; font-size:13px}
-  .who b{color:var(--accent)}
 
-  .cols{display:flex; gap:22px; padding:22px; align-items:flex-start; flex-wrap:wrap}
+  .cols{display:flex; gap:22px; padding:16px 22px 40px; align-items:flex-start;
+        flex-wrap:wrap}
   .editor{flex:1 1 430px; min-width:310px}
-  .preview{flex:0 0 400px}
+  .preview{flex:0 0 400px; position:sticky; top:58px}
 
   fieldset{border:1px solid var(--line); border-radius:var(--r);
-           padding:14px 16px 18px; margin:0 0 16px}
+           padding:14px 16px 18px; margin:0 0 14px}
   legend{padding:0 6px; color:var(--dim); font-size:12px;
          text-transform:uppercase; letter-spacing:.06em}
   label{display:block; font-size:12.5px; color:var(--dim); margin:12px 0 5px}
-  label:first-of-type{margin-top:0}
   input,textarea,select{width:100%; padding:10px 11px; font:inherit; font-size:14px;
     color:var(--ink); background:#0c0c10; border:1px solid var(--line); border-radius:9px}
   textarea{min-height:76px; resize:vertical; font-family:Consolas,monospace; font-size:13px}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
-  .row{display:flex; gap:10px}
-  .row>*{flex:1}
-  .check{display:flex; align-items:center; gap:8px; margin:10px 0 0; font-size:14px}
-  .check input{width:16px;height:16px}
   .note{color:var(--dim); font-size:12px; margin-top:6px}
+  .inherit{white-space:pre-wrap; font-family:Consolas,monospace; font-size:11px;
+           color:#6d6d7a; border-left:2px solid var(--line); padding-left:8px; margin-top:5px}
+
+  /* Every section is a panel that opens and closes. */
+  details.sec{border:1px solid var(--line); border-radius:var(--r);
+              margin-bottom:10px; background:#15151a; overflow:hidden}
+  details.sec[open]{background:#17171d}
+  details.sec > summary{list-style:none; cursor:pointer; padding:12px 14px;
+                        display:flex; align-items:center; gap:10px; font-size:14.5px}
+  details.sec > summary::-webkit-details-marker{display:none}
+  details.sec > summary::before{content:"\25B8"; color:var(--dim); font-size:12px;
+                                transition:transform .12s}
+  details.sec[open] > summary::before{transform:rotate(90deg)}
+  details.sec > summary .ico{width:30px;height:30px;border-radius:8px;flex:none;
+    display:grid;place-items:center;background:#24242e;font-size:15px}
+  details.sec > summary .grow{flex:1}
+  details.sec > summary .state{font-size:11.5px; color:var(--dim)}
+  details.sec .body{padding:2px 14px 16px}
+  details.sec.off{opacity:.45}
+
+  .checklist{display:grid; grid-template-columns:1fr 1fr; gap:6px 16px}
+  .checklist label{display:flex; align-items:center; gap:8px; margin:0;
+                   font-size:13.5px; color:var(--ink)}
+  .checklist input{width:16px; height:16px}
+
   .linkrow{border:1px solid var(--line); border-radius:10px; padding:10px 12px 12px;
            margin-bottom:8px; background:#141419}
   .linkrow .head{display:flex; gap:8px; align-items:center; margin-bottom:6px}
@@ -46,6 +72,7 @@
   .linkrow .head .title{flex:1; font-size:13px; color:var(--dim)}
   .kill{flex:0 0 auto; background:#2a1b1b; border-color:#5a2a2a; color:#ff9e9e;
         padding:6px 10px; font-size:12px}
+
   .swatches{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px}
   .sw{width:26px; height:26px; border-radius:50%; border:2px solid transparent;
       cursor:pointer; padding:0}
@@ -54,162 +81,60 @@
               background:var(--accent);color:#fff;display:grid;place-items:center;
               font-weight:700;font-size:20px;flex:0 0 auto}
   .avatarPrev img{width:100%;height:100%;object-fit:cover}
-  .inherit{white-space:pre-wrap; font-family:Consolas,monospace; font-size:11px;
-           color:#6d6d7a; border-left:2px solid var(--line); padding-left:8px; margin-top:5px}
 
-  .bar{position:sticky; bottom:0; background:var(--bg); border-top:1px solid var(--line);
-       padding:14px 0 6px; display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-  button{padding:11px 16px; font:inherit; font-size:14px; font-weight:600;
+  button{padding:10px 15px; font:inherit; font-size:14px; font-weight:600;
          border-radius:var(--r); border:1px solid var(--line);
          background:#24242c; color:var(--ink); cursor:pointer}
   button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  button.big{width:100%; padding:15px; font-size:15.5px}
   button:active{transform:translateY(1px)}
-  .status{color:var(--ok); font-size:13px}
+  .bar{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 
-  iframe{width:400px; height:700px; border:1px solid var(--line);
+  iframe{width:400px; height:640px; border:1px solid var(--line);
          border-radius:var(--r); background:#fff}
-  .preview h3{margin:0 0 8px; font-size:13px; color:var(--dim);
+  .preview h3{margin:0 0 8px; font-size:12px; color:var(--dim);
               text-transform:uppercase; letter-spacing:.06em}
-  details{margin-top:14px}
-  summary{cursor:pointer; color:var(--dim); font-size:13px}
+  details.json{margin-top:12px}
+  details.json summary{cursor:pointer; color:var(--dim); font-size:13px}
   pre{background:#0c0c10; border:1px solid var(--line); border-radius:9px;
       padding:12px; overflow:auto; font-size:12px; max-height:240px}
-  .hand{background:#2b2410; border:1px solid #6a5a1c; color:#e8cf7a;
-        padding:11px 13px; border-radius:10px; font-size:12.5px; margin:0 22px 4px}
+  .saveWrap{margin-top:18px; padding-top:16px; border-top:1px solid var(--line)}
 </style>
 </head>
 <body>
 
+<div id="statusBar"><b id="statusWord">All changes saved</b><span id="statusMore"></span></div>
+
 <header>
   <h1 id="title">Edit my card</h1>
-  <p id="sub">Change anything and watch the preview.</p>
-  <div class="who" id="whoChip" style="display:none"></div>
+  <p id="sub">Tick what appears, then open a section to fill it in.</p>
 </header>
-
-<p class="hand" id="handoff" style="display:none">
-  There is no login here, so this page cannot publish for you. Make your changes,
-  press <b>Send my details to the admin</b>, and they paste it in. Your edits go
-  live on their next save.
-</p>
 
 <div class="cols">
   <div class="editor">
 
     <fieldset>
-      <legend>Who you are</legend>
-      <div class="row">
-        <div><label for="name">Name</label><input id="name" type="text"></div>
-        <div><label for="role">Role</label><input id="role" type="text" placeholder="CEO"></div>
-      </div>
-      <label for="company">Team / company</label><input id="company" type="text">
-      <div class="row">
-        <div><label for="email">Email</label><input id="email" type="email"></div>
-        <div><label for="phone">Phone</label><input id="phone" type="tel" placeholder="+15555551234"></div>
-      </div>
-      <p class="note">Leave the phone blank and the Text&nbsp;me and Call&nbsp;me
-         actions simply do not appear.</p>
-      <label for="site">Website</label><input id="site" type="url">
+      <legend>What appears on my card</legend>
+      <div class="checklist" id="checklist"></div>
+      <p class="note">Unticked sections are hidden from your card and greyed out below.</p>
     </fieldset>
 
-    <fieldset>
-      <legend>Your buttons</legend>
-      <p class="note" style="margin:0 0 10px">
-        Save, email, text, call and website appear automatically from the details
-        above. These are extra ones &mdash; LinkedIn, a booking link, a portfolio.
+    <div id="sections"></div>
+
+    <div class="saveWrap">
+      <button class="primary big" id="saveBtn">Save my changes</button>
+      <div class="bar" style="margin-top:10px">
+        <button id="downloadBtn">Download a copy</button>
+        <button id="revertBtn">Undo all my changes</button>
+      </div>
+      <p class="note" id="saveNote">
+        Saving keeps your work in this browser and copies it. To put it on the real
+        card, send the copied text to whoever set your card up.
       </p>
-      <div id="linkList"></div>
-      <div class="bar" style="margin-top:4px">
-        <button id="addLink">Add a button</button>
-        <button id="addLinkedIn">Add LinkedIn</button>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Look</legend>
-      <label>Accent colour</label>
-      <div style="display:flex; gap:10px; align-items:center">
-        <input id="accent" type="text" placeholder="#d62828" style="flex:1">
-        <input id="accentPick" type="color" style="width:46px; padding:2px; height:38px">
-      </div>
-      <div class="swatches" id="swatches"></div>
-
-      <label style="margin-top:14px">Photo</label>
-      <div style="display:flex; gap:12px; align-items:center">
-        <div class="avatarPrev" id="avatarPrev"></div>
-        <div style="flex:1">
-          <input id="photo" type="text" placeholder="paste an image URL, or pick a file">
-          <div class="bar" style="margin-top:6px">
-            <button id="pickPhoto">Choose a file…</button>
-            <button id="clearPhoto">Remove</button>
-          </div>
-        </div>
-      </div>
-      <input id="photoFile" type="file" accept="image/*" style="display:none">
-      <p class="note" id="photoNote">
-        A file is shrunk to a small square and embedded, so there is nothing to host.
-      </p>
-    </fieldset>
-
-    <fieldset>
-      <legend>Message wording &mdash; blank uses the shared default</legend>
-      <p class="note" style="margin:0 0 10px">
-        These are the messages a visitor sends <em>you</em> when they tap
-        <b>Email me</b> or <b>Text me</b>.
-      </p>
-      <label for="emailSubject">Email subject</label>
-      <input id="emailSubject" type="text">
-      <p class="note inherit" id="inheritSubject"></p>
-      <label for="emailBody">Email body</label>
-      <textarea id="emailBody"></textarea>
-      <p class="note inherit" id="inheritBody"></p>
-      <label for="smsBody">Text message</label>
-      <textarea id="smsBody"></textarea>
-      <p class="note inherit" id="inheritSms"></p>
-    </fieldset>
-
-    <!-- Shared-only settings: hidden when editing one person's card. -->
-    <div id="sharedOnly">
-      <fieldset>
-        <legend>Browser tab title</legend>
-        <label for="titleTemplate">Pattern used by every card</label>
-        <input id="titleTemplate" type="text" placeholder="{{name}} — {{company}}">
-        <p class="note">This is what shows in the browser tab and in someone's history,
-           so it should name the person, not the site. Placeholders:
-           <code>{{name}}</code> <code>{{role}}</code> <code>{{company}}</code>.
-           A card can override it from the admin panel.</p>
-      </fieldset>
-
-      <fieldset>
-        <legend>Their details form</legend>
-        <div class="check"><input id="showForm" type="checkbox"><label for="showForm" style="margin:0">Show the form</label></div>
-        <div class="row" style="margin-top:12px">
-          <div><label for="formTitle">Button title</label><input id="formTitle" type="text"></div>
-          <div><label for="formSub">Button subtitle</label><input id="formSub" type="text"></div>
-        </div>
-        <div class="check"><input id="askPhone" type="checkbox"><label for="askPhone" style="margin:0">Ask for phone</label></div>
-        <div class="check"><input id="askCompany" type="checkbox"><label for="askCompany" style="margin:0">Ask for company</label></div>
-        <div class="check"><input id="askNote" type="checkbox"><label for="askNote" style="margin:0">Ask an open question</label></div>
-        <label for="noteLabel">The question</label><input id="noteLabel" type="text">
-      </fieldset>
-
-      <fieldset>
-        <legend>Where the form posts</legend>
-        <label for="endpoint">Endpoint</label>
-        <input id="endpoint" type="url" placeholder="https://formsubmit.co/ajax/your@email.com">
-        <p class="note">Blank is test mode: the form validates and shows the success
-           screen without sending. If the relay is unreachable the page falls back to
-           the visitor's own mail app, prefilled, so nothing is lost.</p>
-        <label for="autoResponse">Automatic reply sent back to them</label>
-        <textarea id="autoResponse"></textarea>
-        <p class="note">Placeholders: <code>{{name}}</code> <code>{{role}}</code>
-           <code>{{company}}</code> <code>{{email}}</code> <code>{{site}}</code></p>
-      </fieldset>
     </div>
 
-    <div class="bar" id="bar"></div>
-
-    <details>
-      <summary>Show the JSON</summary>
+    <details class="json">
+      <summary>Show the raw data</summary>
       <pre id="json"></pre>
     </details>
   </div>
@@ -223,82 +148,188 @@
 
 <script>
 /* Two modes, one page:
-     edit.html            the shared config.json  (admin)
-     edit.html?c=<id>     one person's own card   (that person)
-   The second is what you hand out: it shows only what they control, and hands
-   back a snippet because a static page cannot publish on their behalf. */
+     edit.html          the shared settings
+     edit.html?c=<id>   one person's own card
+   The second never mentions an admin panel: it is not their concern. */
 const cardId = new URLSearchParams(location.search).get("c") || "";
 const PERSONAL = !!cardId;
 
 const OWN = ["name","role","company","email","phone","site",
-             "accent","photo",
-             "emailSubject","emailBody","smsBody"];
+             "accent","photo","emailSubject","emailBody","smsBody"];
 const SHARED_ONLY = ["endpoint","autoResponse","formTitle","formSub","noteLabel",
-                     "titleTemplate"];
+                     "titleTemplate","background"];
 const FLAGS = ["showForm","askPhone","askCompany","askNote"];
 const FIELDS = PERSONAL ? OWN : OWN.concat(SHARED_ONLY);
 
-let shared = {};      // config.json, for showing what a blank field inherits
-let profiles = {};    // profiles.json, only used in personal mode
-let ready = false;
+/* Each card action is a section: a tick to show it, a panel to fill it in.
+   `needs` names the fields it depends on, so a section can say why it is still
+   empty rather than silently doing nothing. */
+const SECTIONS = [
+  {key:"details", icon:"\u{1F464}", title:"My details", always:true,
+   fields:[["name","Name","Ada Lovelace"],["role","Role","Head of Engines"],
+           ["company","Team / company",""],["email","Email","ada@example.com"],
+           ["phone","Phone","+15555551234"],["site","Website","https://example.com"]]},
+  {key:"contact", icon:"\u{1F4C7}", title:"Save my contact",
+   blurb:"Adds you to their phone, built from the details above.", needs:["name"]},
+  {key:"email", icon:"✉", title:"Email me",
+   blurb:"Opens a message already addressed to you.", needs:["email"],
+   fields:[["emailSubject","Subject they will send",""],
+           ["emailBody","Message they will send","","area"]]},
+  {key:"text", icon:"\u{1F4AC}", title:"Text me",
+   blurb:"Opens a text already written.", needs:["phone"],
+   fields:[["smsBody","Message they will send","","area"]]},
+  {key:"call", icon:"\u{1F4DE}", title:"Call me", blurb:"Dials you.", needs:["phone"]},
+  {key:"site", icon:"\u{1F310}", title:"My website",
+   blurb:"Opens the website from your details.", needs:["site"]},
+  {key:"links", icon:"\u{1F517}", title:"My own buttons", always:true,
+   blurb:"LinkedIn, a booking link, a portfolio — anything else."},
+  {key:"form", icon:"\u{1F4E4}", title:"Send me your details",
+   blurb:"Lets them send you their name and email with one tap."},
+  {key:"look", icon:"\u{1F3A8}", title:"Colour and photo", always:true}
+];
+
+let shared = {}, profiles = {}, links = [], allowed = null, show = {};
+let ready = false, unsaved = false;
 
 const frame = document.getElementById("frame");
 frame.src = "index.html" + (PERSONAL ? "?c=" + encodeURIComponent(cardId) : "");
+const DRAFT_KEY = "nfcCardOwnDraft:" + (cardId || "shared");
 
-function say(message){
-  const el = document.getElementById("status");
-  if (!el) return;
-  el.textContent = message;
-  setTimeout(() => { if (el.textContent === message) el.textContent = ""; }, 4000);
+function setStatus(dirtyState, extra){
+  unsaved = dirtyState;
+  const bar = document.getElementById("statusBar");
+  bar.classList.toggle("unsaved", dirtyState);
+  document.getElementById("statusWord").textContent =
+    dirtyState ? "Unsaved changes" : "All changes saved";
+  document.getElementById("statusMore").textContent = extra || "";
+}
+window.addEventListener("beforeunload", (event) => {
+  if (!unsaved) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
+function say(message){ setStatus(unsaved, message); }
+
+// ------------------------------------------------------------- build the UI
+
+function field(key, label, placeholder, kind){
+  const wrap = document.createElement("div");
+  const lab = document.createElement("label");
+  lab.textContent = label;
+  lab.setAttribute("for", key);
+  const el = document.createElement(kind === "area" ? "textarea" : "input");
+  el.id = key;
+  if (placeholder) el.placeholder = placeholder;
+  el.addEventListener("input", push);
+  wrap.append(lab, el);
+  if (["emailSubject","emailBody","smsBody"].indexOf(key) !== -1){
+    const hint = document.createElement("p");
+    hint.className = "note inherit";
+    hint.id = "inherit_" + key;
+    wrap.appendChild(hint);
+  }
+  return wrap;
 }
 
-/* The admin can limit which fields a person sees. Anything not allowed is
-   hidden here and, critically, left out of collect() - so a value the admin
-   set cannot be wiped by a field the person was never shown. */
-let allowed = null;
+const sectionHost = document.getElementById("sections");
+const checklist = document.getElementById("checklist");
+const panels = {};
 
-function applyAllow(list){
-  allowed = Array.isArray(list) && list.length ? list : null;
-  if (!allowed) return;
-  OWN.forEach(key => {
-    const el = document.getElementById(key);
-    if (!el || allowed.indexOf(key) !== -1) return;
-    const row = el.closest("div.row > div") || el.parentElement;
-    const label = document.querySelector('label[for="' + key + '"]');
-    if (label) label.style.display = "none";
-    el.style.display = "none";
-    if (row && row.parentElement && row.parentElement.className === "row")
-      row.style.display = "none";
+SECTIONS.forEach(section => {
+  const box = document.createElement("details");
+  box.className = "sec";
+  const summary = document.createElement("summary");
+  summary.innerHTML = '<span class="ico">' + section.icon + '</span>' +
+    '<span class="grow">' + section.title + '</span>' +
+    '<span class="state" id="state_' + section.key + '"></span>';
+  box.appendChild(summary);
+
+  const body = document.createElement("div");
+  body.className = "body";
+  if (section.blurb){
+    const p = document.createElement("p");
+    p.className = "note";
+    p.style.marginTop = "0";
+    p.textContent = section.blurb;
+    body.appendChild(p);
+  }
+  (section.fields || []).forEach(f => body.appendChild(field(f[0], f[1], f[2], f[3])));
+  box.appendChild(body);
+  sectionHost.appendChild(box);
+  panels[section.key] = {box:box, body:body, section:section};
+
+  if (!section.always){
+    const lab = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = true;
+    cb.dataset.show = section.key;
+    cb.addEventListener("change", () => {
+      show[section.key] = cb.checked;
+      refreshSections();
+      push();
+    });
+    lab.appendChild(cb);
+    lab.appendChild(document.createTextNode(section.title));
+    checklist.appendChild(lab);
+  }
+});
+
+function refreshSections(){
+  SECTIONS.forEach(section => {
+    const panel = panels[section.key];
+    const on = section.always || show[section.key] !== false;
+    panel.box.classList.toggle("off", !on);
+    const state = document.getElementById("state_" + section.key);
+    if (!state) return;
+    if (!on){ state.textContent = "hidden"; return; }
+    const missing = (section.needs || []).filter(k => {
+      const el = document.getElementById(k);
+      return !el || !el.value.trim();
+    });
+    state.textContent = missing.length ? "needs " + missing.join(", ") : "";
   });
 }
 
-/* Extra buttons. Held as an array rather than form fields because they are
-   add/remove, and rebuilt from the DOM on every change so order is whatever
-   is on screen. */
-let links = [];
+// --------------------------------------------------------------- my buttons
 
-const ICON_CHOICES = ["\u{1F517}","in","\u{1F4C5}","\u{1F4BC}","\u{1F4F7}",
-                      "\u{1F3A5}","\u{1F4C4}","\u2B50","\u{1F4CD}","\u{1F6D2}"];
+const linksHost = document.createElement("div");
+panels.links.body.appendChild(linksHost);
+const linksBar = document.createElement("div");
+linksBar.className = "bar";
+linksBar.style.marginTop = "4px";
+panels.links.body.appendChild(linksBar);
+
+function addLinkButton(text, template){
+  const b = document.createElement("button");
+  b.textContent = text;
+  b.addEventListener("click", () => {
+    links.push(Object.assign({icon:"\u{1F517}", label:"", sub:"", url:""}, template));
+    drawLinks();
+    push();
+  });
+  linksBar.appendChild(b);
+}
+addLinkButton("Add a button", {});
+addLinkButton("Add LinkedIn", {icon:"in", label:"LinkedIn", sub:"connect with me"});
 
 function drawLinks(){
-  const host = document.getElementById("linkList");
-  host.innerHTML = "";
+  linksHost.innerHTML = "";
   links.forEach((link, index) => {
     const row = document.createElement("div");
     row.className = "linkrow";
-
     const head = document.createElement("div");
     head.className = "head";
 
     const icon = document.createElement("input");
     icon.type = "text";
     icon.value = link.icon || "\u{1F517}";
-    icon.title = "Icon - any emoji, or short text";
+    icon.title = "Icon";
     icon.addEventListener("input", () => { links[index].icon = icon.value; push(); });
 
     const title = document.createElement("span");
     title.className = "title";
-    title.textContent = "Button " + (index + 1);
+    title.textContent = link.label || ("Button " + (index + 1));
 
     const kill = document.createElement("button");
     kill.className = "kill";
@@ -308,34 +339,39 @@ function drawLinks(){
     head.append(icon, title, kill);
     row.appendChild(head);
 
-    [["label", "Button text", "LinkedIn"],
-     ["sub", "Small line under it", "connect with me"],
-     ["url", "Where it goes", "https://linkedin.com/in/you"]].forEach(([key, label, hint]) => {
+    [["label","Button text","LinkedIn"],
+     ["sub","Small line under it","connect with me"],
+     ["url","Where it goes","https://linkedin.com/in/you"]].forEach(pair => {
       const lab = document.createElement("label");
-      lab.textContent = label;
+      lab.textContent = pair[1];
       const box = document.createElement("input");
       box.type = "text";
-      box.placeholder = hint;
-      box.value = link[key] || "";
-      box.addEventListener("input", () => { links[index][key] = box.value; push(); });
+      box.placeholder = pair[2];
+      box.value = link[pair[0]] || "";
+      box.addEventListener("input", () => { links[index][pair[0]] = box.value; push(); });
       row.append(lab, box);
     });
-
-    host.appendChild(row);
+    linksHost.appendChild(row);
   });
 }
 
-document.getElementById("addLink").addEventListener("click", () => {
-  links.push({icon:"\u{1F517}", label:"", sub:"", url:""});
-  drawLinks();
-  push();
-});
+// ---------------------------------------------------------- colour + photo
 
-document.getElementById("addLinkedIn").addEventListener("click", () => {
-  links.push({icon:"in", label:"LinkedIn", sub:"connect with me", url:""});
-  drawLinks();
-  push();
-});
+panels.look.body.innerHTML =
+  '<label for="accent">Accent colour</label>' +
+  '<div style="display:flex; gap:10px; align-items:center">' +
+    '<input id="accent" type="text" placeholder="#d62828" style="flex:1">' +
+    '<input id="accentPick" type="color" style="width:46px; padding:2px; height:38px">' +
+  '</div><div class="swatches" id="swatches"></div>' +
+  '<label style="margin-top:14px">Photo</label>' +
+  '<div style="display:flex; gap:12px; align-items:center">' +
+    '<div class="avatarPrev" id="avatarPrev"></div>' +
+    '<div style="flex:1"><input id="photo" type="text" placeholder="paste an image link, or pick a file">' +
+    '<div class="bar" style="margin-top:6px"><button id="pickPhoto">Choose a file…</button>' +
+    '<button id="clearPhoto">Remove</button></div></div></div>' +
+  '<input id="photoFile" type="file" accept="image/*" style="display:none">' +
+  '<p class="note" id="photoNote">A file is shrunk to a small square and stored with ' +
+  'your card, so there is nothing to host.</p>';
 
 const PALETTE = ["#d62828","#1f6feb","#2e9e5b","#7a2fd6","#e07b00",
                  "#0e7490","#c2185b","#334155"];
@@ -354,20 +390,24 @@ function setAccent(colour){
   document.getElementById("accentPick").value = colour;
   Array.from(swatches.children).forEach(b =>
     b.classList.toggle("on", b.title.toLowerCase() === colour.toLowerCase()));
-  document.getElementById("avatarPrev").style.background = colour;
+  drawAvatarPreview();
   push();
 }
-document.getElementById("accentPick").addEventListener("input", (e) => setAccent(e.target.value));
-document.getElementById("accent").addEventListener("input", (e) => {
-  const v = e.target.value.trim();
-  if (/^#[0-9a-f]{6}$/i.test(v)) setAccent(v); else push();
+document.getElementById("accentPick").addEventListener("input",
+  e => setAccent(e.target.value));
+document.getElementById("accent").addEventListener("input", e => {
+  if (/^#[0-9a-f]{6}$/i.test(e.target.value.trim())) setAccent(e.target.value.trim());
+  else push();
 });
 
 function drawAvatarPreview(){
   const box = document.getElementById("avatarPrev");
-  const photo = document.getElementById("photo").value.trim();
-  const name = document.getElementById("name").value.trim();
-  const initials = (name || "?").split(/\s+/).map(w => w[0] || "").join("").slice(0,2).toUpperCase();
+  const photo = (document.getElementById("photo").value || "").trim();
+  const nameEl = document.getElementById("name");
+  const name = (nameEl && nameEl.value || "").trim();
+  const initials = (name || "?").split(/\s+/).map(w => w[0] || "")
+    .join("").slice(0,2).toUpperCase();
+  box.style.background = document.getElementById("accent").value || "#d62828";
   box.innerHTML = "";
   if (photo){
     const img = document.createElement("img");
@@ -386,10 +426,13 @@ document.getElementById("clearPhoto").addEventListener("click", () => {
   drawAvatarPreview();
   push();
 });
+document.getElementById("photo").addEventListener("input", () => {
+  drawAvatarPreview();
+  push();
+});
 
-/* Shrink before embedding. A phone photo is several megabytes; pasted into
-   profiles.json untouched it would be downloaded by every visitor to every
-   card. 256px square is more than the avatar ever shows. */
+/* Shrink before storing. A phone photo is several megabytes, and every visitor
+   to every card downloads the same file, so 256px square is the ceiling. */
 document.getElementById("photoFile").addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -406,57 +449,68 @@ document.getElementById("photoFile").addEventListener("change", (event) => {
                     side, side, 0, 0, size, size);
       const data = canvas.toDataURL("image/jpeg", 0.82);
       document.getElementById("photo").value = data;
-      const kb = Math.round(data.length * 0.75 / 1024);
       document.getElementById("photoNote").textContent =
-        "Embedded at 256px, about " + kb + " KB. Every visitor to any card downloads "
-        + "profiles.json, so keep photos to a handful.";
+        "Stored at 256px, about " + Math.round(data.length * 0.75 / 1024) + " KB.";
       drawAvatarPreview();
       push();
     };
-    img.onerror = () => say("That file is not an image this browser can read.");
+    img.onerror = () => say("— that file is not an image this browser can read");
     img.src = reader.result;
   };
   reader.readAsDataURL(file);
 });
 
+// -------------------------------------------------------------- data in/out
+
 function collect(){
-  const out = PERSONAL ? {} : {links: []};
+  const out = {};
   FIELDS.forEach(k => {
     const el = document.getElementById(k);
     if (!el) return;
     if (PERSONAL && allowed && allowed.indexOf(k) === -1) return;
     const value = el.value;
-    // In personal mode an empty box means "inherit", so do not write it out.
     if (!PERSONAL || value) out[k] = value;
   });
-  if (!PERSONAL) FLAGS.forEach(k => out[k] = document.getElementById(k).checked);
+  if (!PERSONAL) FLAGS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) out[k] = el.checked;
+  });
   const kept = links.filter(l => (l.url || "").trim());
   if (kept.length || !PERSONAL) out.links = kept;
+  out.show = Object.assign({}, show);
   return out;
 }
 
 function drawInherited(){
-  [["emailSubject","inheritSubject","email subject"],
-   ["emailBody","inheritBody","email body"],
-   ["smsBody","inheritSms","text message"]].forEach(([field, target, label]) => {
-    const el = document.getElementById(target);
+  [["emailSubject","email subject"],["emailBody","email body"],
+   ["smsBody","text message"]].forEach(pair => {
+    const el = document.getElementById("inherit_" + pair[0]);
     if (!el) return;
-    const mine = (document.getElementById(field).value || "").trim();
-    if (mine){ el.textContent = "this card uses its own " + label; el.style.color = "#2e9e5b"; return; }
-    const fallback = (shared[field] || "").trim();
+    const source = document.getElementById(pair[0]);
+    const mine = ((source && source.value) || "").trim();
+    if (mine){
+      el.textContent = "using your own " + pair[1];
+      el.style.color = "#2e9e5b";
+      return;
+    }
+    const fallback = (shared[pair[0]] || "").trim();
     el.style.color = "";
-    el.textContent = fallback ? "inherits: " + fallback
-      : (field === "smsBody" ? "inherits: a message built from your details"
-                             : "nothing set in the shared config either");
+    el.textContent = fallback ? "otherwise: " + fallback
+      : (pair[0] === "smsBody" ? "otherwise: a message built from your details"
+                               : "nothing set, so this will be blank");
   });
 }
 
-function push(){
-  drawAvatarPreview();
-  const data = collect();
-  document.getElementById("json").textContent = JSON.stringify(data, null, 2);
-  drawInherited();
+function sendToPreview(data){
   if (ready) frame.contentWindow.postMessage({nfcConfig: data}, "*");
+  document.getElementById("json").textContent = JSON.stringify(data, null, 2);
+}
+
+function push(){
+  drawInherited();
+  refreshSections();
+  sendToPreview(collect());
+  setStatus(true);
 }
 
 function apply(data){
@@ -464,21 +518,49 @@ function apply(data){
     const el = document.getElementById(k);
     if (el) el.value = data[k] || "";
   });
+  if (!PERSONAL) FLAGS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.checked = data[k] !== false;
+  });
   links = Array.isArray(data.links) ? JSON.parse(JSON.stringify(data.links)) : [];
+  show = Object.assign({contact:true, email:true, text:true, call:true,
+                        site:true, form:true}, data.show || {});
+  checklist.querySelectorAll("input").forEach(cb => {
+    cb.checked = show[cb.dataset.show] !== false;
+  });
   drawLinks();
-  setAccent(data.accent || "#d62828");
+  document.getElementById("accent").value = data.accent || "#d62828";
+  document.getElementById("accentPick").value = data.accent || "#d62828";
+  Array.from(swatches.children).forEach(b =>
+    b.classList.toggle("on", b.title.toLowerCase() === (data.accent || "").toLowerCase()));
   drawAvatarPreview();
-  if (!PERSONAL) FLAGS.forEach(k => document.getElementById(k).checked = data[k] !== false);
-  push();
+  drawInherited();
+  refreshSections();
+  sendToPreview(collect());
+  setStatus(false);
 }
 
-FIELDS.concat(PERSONAL ? [] : FLAGS).forEach(k => {
-  const el = document.getElementById(k);
-  if (!el) return;
-  el.addEventListener("input", push);
-  el.addEventListener("change", push);
+/* Fields the card owner was not given are hidden AND left out of collect(),
+   so a value they never saw cannot be wiped by an empty box. */
+function applyAllow(list){
+  allowed = Array.isArray(list) && list.length ? list : null;
+  if (!allowed) return;
+  OWN.forEach(key => {
+    if (allowed.indexOf(key) !== -1) return;
+    const el = document.getElementById(key);
+    if (!el) return;
+    const label = document.querySelector('label[for="' + key + '"]');
+    if (label) label.style.display = "none";
+    el.style.display = "none";
+  });
+}
+
+frame.addEventListener("load", () => {
+  ready = true;
+  sendToPreview(collect());
 });
-frame.addEventListener("load", () => { ready = true; push(); });
+
+// ------------------------------------------------------------- save / load
 
 function download(name, text, type){
   const a = document.createElement("a");
@@ -487,62 +569,38 @@ function download(name, text, type){
   a.click();
 }
 
-// ---------------------------------------------------------------- buttons
-
-const bar = document.getElementById("bar");
-function addButton(label, primary, handler){
-  const b = document.createElement("button");
-  b.textContent = label;
-  if (primary) b.className = "primary";
-  b.addEventListener("click", handler);
-  bar.appendChild(b);
-  return b;
+function payload(){
+  if (!PERSONAL) return collect();
+  // Merge over what is stored, so settings not shown here survive the trip.
+  return Object.assign({}, profiles[cardId] || {}, collect());
 }
 
-if (PERSONAL){
-  document.getElementById("sharedOnly").style.display = "none";
-  document.getElementById("handoff").style.display = "block";
-  document.getElementById("title").textContent = "Edit my card";
-  document.getElementById("sub").textContent =
-    "Only your own details. Everything else comes from the shared settings.";
-  const chip = document.getElementById("whoChip");
-  chip.style.display = "inline-block";
-  chip.innerHTML = "card <b>" + cardId + "</b>";
-
-  addButton("Send my details to the admin", true, async () => {
-    // Merge over what the admin set, so hidden settings (cc, _allow) survive
-    // a round trip through someone else's browser.
-    const merged = Object.assign({}, profiles[cardId] || {}, collect());
-    const payload = JSON.stringify({profiles: {[cardId]: merged}}, null, 2);
-    try { await navigator.clipboard.writeText(payload); say("Copied — send that to the admin."); }
-    catch (e){ say("Copy failed; use Download instead."); }
-  });
-  addButton("Download my details", false, () => {
-    download(cardId + ".json",
-             JSON.stringify({profiles: {[cardId]:
-               Object.assign({}, profiles[cardId] || {}, collect())}}, null, 2),
-             "application/json");
-    say("Downloaded — send that file to the admin.");
-  });
-  addButton("Reload mine", false, () => { load(); say("Reloaded."); });
-} else {
-  addButton("Download config.json", true, () => {
-    download("config.json", JSON.stringify(collect(), null, 2), "application/json");
-    say("Downloaded — commit it next to index.html to publish.");
-  });
-  addButton("Copy JSON", false, async () => {
-    await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
-    say("Copied.");
-  });
-  addButton("Reload current", false, () => { load(); say("Reloaded."); });
+function bundle(){
+  return PERSONAL ? {profiles: {[cardId]: payload()}} : payload();
 }
 
-const statusSpan = document.createElement("span");
-statusSpan.className = "status";
-statusSpan.id = "status";
-bar.appendChild(statusSpan);
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  const text = JSON.stringify(bundle(), null, 2);
+  try { localStorage.setItem(DRAFT_KEY, text); } catch (e){ /* private window */ }
+  let copied = false;
+  try { await navigator.clipboard.writeText(text); copied = true; } catch (e){ /* denied */ }
+  setStatus(false, copied ? "— copied, ready to send on"
+                          : "— use Download a copy to send it on");
+});
 
-// ------------------------------------------------------------------- load
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const text = JSON.stringify(bundle(), null, 2);
+  download((PERSONAL ? cardId : "config") + ".json", text, "application/json");
+  try { localStorage.setItem(DRAFT_KEY, text); } catch (e){ /* private window */ }
+  setStatus(false, "— downloaded");
+});
+
+document.getElementById("revertBtn").addEventListener("click", () => {
+  if (unsaved && !confirm("Throw away your changes and start from the published card?"))
+    return;
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e){ /* nothing stored */ }
+  load();
+});
 
 async function fetchJson(path){
   try {
@@ -554,18 +612,32 @@ async function fetchJson(path){
 
 async function load(){
   shared = (await fetchJson("config.json")) || {};
+
+  let draft = null;
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) draft = JSON.parse(raw);
+  } catch (e){ draft = null; }
+
   if (PERSONAL){
     const book = await fetchJson("profiles.json");
     profiles = (book && book.profiles) || {};
-    const mine = profiles[cardId] || {};
-    applyAllow(mine._allow);
+    const stored = profiles[cardId] || {};
+    const mine = (draft && draft.profiles && draft.profiles[cardId]) || stored;
+    applyAllow(stored._allow);
+    // Colour is only theirs to change if it was left switched on.
+    if (shared.allowAccent === false || stored.allowAccent === false)
+      panels.look.box.style.display = "none";
     apply(mine);
     document.getElementById("liveUrl").textContent =
       location.href.replace(/edit\.html.*$/, "") + "?c=" + cardId;
+    if (draft) setStatus(false, "— restored from this browser");
   } else {
-    apply(shared);
+    document.getElementById("title").textContent = "Shared settings";
+    document.getElementById("sub").textContent = "Defaults that every card starts from.";
+    apply(draft || shared);
     document.getElementById("liveUrl").textContent =
-      "This is the shared default every card starts from.";
+      "These are the defaults every card starts from.";
   }
 }
 

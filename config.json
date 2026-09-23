@@ -22,5 +22,7 @@
   "ccOwner": true,
   "ccMode": "bcc",
   "titleTemplate": "{{name}} — {{company}}",
-  "pageTitle": ""
+  "pageTitle": "",
+  "allowAccent": true,
+  "background": ""
 }

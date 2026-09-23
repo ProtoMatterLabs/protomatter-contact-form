@@ -193,6 +193,17 @@
 
     <fieldset class="adminOnly">
       <legend>Admin only &mdash; not shown in their editor</legend>
+      <label class="check" style="display:flex; align-items:center; gap:8px;
+             font-size:13.5px; color:var(--ink); margin:0 0 10px">
+        <input id="allowAccent" type="checkbox" style="width:16px;height:16px" checked>
+        Let this person choose their own colour and photo
+      </label>
+      <label for="background">Card background (branding)</label>
+      <input id="background" type="text"
+             placeholder="#0d0d10, or a link to an image">
+      <p class="note">A colour goes straight in; anything else is treated as an
+         image covering the page. Leave blank for the default.</p>
+
       <label for="pageTitle">Browser tab / history title</label>
       <input id="pageTitle" type="text" placeholder="leave blank to use the shared pattern">
       <p class="note" id="titlePreview"></p>
@@ -317,7 +328,9 @@
 
 <script>
 const FIELDS = ["name","role","company","email","phone","site",
-                "cc","ccMode","pageTitle","emailSubject","emailBody","smsBody"];
+                "cc","ccMode","pageTitle","background",
+                "emailSubject","emailBody","smsBody"];
+const BOOLS = ["allowAccent"];
 
 let shared = {};          // config.json: what a blank field falls back to
 let profiles = {};        // id -> profile object
@@ -495,6 +508,7 @@ function edit(id){
   current = id;
   const profile = profiles[id] || {};
   FIELDS.forEach(k => document.getElementById(k).value = profile[k] || "");
+  BOOLS.forEach(k => document.getElementById(k).checked = profile[k] !== false);
   document.getElementById("cardId").value = id;
   document.getElementById("idNote").textContent = linkFor(id);
   document.getElementById("whichId").textContent = "— " + id;
@@ -509,6 +523,11 @@ function collect(){
   FIELDS.forEach(k => {
     const value = document.getElementById(k).value;
     if (value) out[k] = value;     // omit empties so config.json still shows through
+  });
+  // Only written when switched off: absent means allowed, which is the default
+  // a profile made before this setting existed should keep.
+  BOOLS.forEach(k => {
+    if (!document.getElementById(k).checked) out[k] = false;
   });
   return out;
 }
@@ -529,8 +548,9 @@ function pushPreview(){
   document.getElementById("previewUrl").textContent = linkFor(current);
 }
 
-FIELDS.forEach(k => {
+FIELDS.concat(BOOLS).forEach(k => {
   const el = document.getElementById(k);
+  if (!el) return;
   el.addEventListener("input", onEdit);
   el.addEventListener("change", onEdit);
 });
