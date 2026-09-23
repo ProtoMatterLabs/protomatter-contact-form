@@ -186,11 +186,32 @@ function say(message){
   setTimeout(() => { if (el.textContent === message) el.textContent = ""; }, 4000);
 }
 
+/* The admin can limit which fields a person sees. Anything not allowed is
+   hidden here and, critically, left out of collect() - so a value the admin
+   set cannot be wiped by a field the person was never shown. */
+let allowed = null;
+
+function applyAllow(list){
+  allowed = Array.isArray(list) && list.length ? list : null;
+  if (!allowed) return;
+  OWN.forEach(key => {
+    const el = document.getElementById(key);
+    if (!el || allowed.indexOf(key) !== -1) return;
+    const row = el.closest("div.row > div") || el.parentElement;
+    const label = document.querySelector('label[for="' + key + '"]');
+    if (label) label.style.display = "none";
+    el.style.display = "none";
+    if (row && row.parentElement && row.parentElement.className === "row")
+      row.style.display = "none";
+  });
+}
+
 function collect(){
   const out = PERSONAL ? {} : {links: []};
   FIELDS.forEach(k => {
     const el = document.getElementById(k);
     if (!el) return;
+    if (PERSONAL && allowed && allowed.indexOf(k) === -1) return;
     const value = el.value;
     // In personal mode an empty box means "inherit", so do not write it out.
     if (!PERSONAL || value) out[k] = value;
@@ -269,13 +290,17 @@ if (PERSONAL){
   chip.innerHTML = "card <b>" + cardId + "</b>";
 
   addButton("Send my details to the admin", true, async () => {
-    const payload = JSON.stringify({profiles: {[cardId]: collect()}}, null, 2);
+    // Merge over what the admin set, so hidden settings (cc, _allow) survive
+    // a round trip through someone else's browser.
+    const merged = Object.assign({}, profiles[cardId] || {}, collect());
+    const payload = JSON.stringify({profiles: {[cardId]: merged}}, null, 2);
     try { await navigator.clipboard.writeText(payload); say("Copied — send that to the admin."); }
     catch (e){ say("Copy failed; use Download instead."); }
   });
   addButton("Download my details", false, () => {
     download(cardId + ".json",
-             JSON.stringify({profiles: {[cardId]: collect()}}, null, 2),
+             JSON.stringify({profiles: {[cardId]:
+               Object.assign({}, profiles[cardId] || {}, collect())}}, null, 2),
              "application/json");
     say("Downloaded — send that file to the admin.");
   });
@@ -312,7 +337,9 @@ async function load(){
   if (PERSONAL){
     const book = await fetchJson("profiles.json");
     profiles = (book && book.profiles) || {};
-    apply(profiles[cardId] || {});
+    const mine = profiles[cardId] || {};
+    applyAllow(mine._allow);
+    apply(mine);
     document.getElementById("liveUrl").textContent =
       location.href.replace(/edit\.html.*$/, "") + "?c=" + cardId;
   } else {

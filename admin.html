@@ -66,6 +66,16 @@
   .inherit{white-space:pre-wrap; font-family:Consolas,monospace; font-size:11px;
            color:#6d6d7a; border-left:2px solid var(--line); padding-left:8px; margin-top:5px}
   .inherit.own{color:var(--ok); border-left-color:var(--ok); font-family:inherit}
+  .tabs{display:flex; gap:6px; padding:14px 18px 0}
+  .tab{background:none; border:0; border-bottom:2px solid transparent;
+       color:var(--dim); padding:8px 14px; border-radius:0; font-size:14px}
+  .tab.on{color:var(--ink); border-bottom-color:var(--accent)}
+  .invite{padding:18px; max-width:780px}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:6px 18px}
+  .grid2 label{display:flex; align-items:center; gap:8px; margin:0;
+               font-size:13.5px; color:var(--ink)}
+  .grid2 input{width:16px; height:16px}
+  .linkout{width:100%; font-family:Consolas,monospace; font-size:12.5px}
   .group{border:1px solid var(--line); border-radius:var(--r);
          padding:10px 12px 12px; margin-bottom:12px}
   .group h4{margin:0 0 8px; font-size:10.5px; color:var(--dim); font-weight:600;
@@ -76,8 +86,6 @@
   .mini a{color:var(--dim); text-decoration:underline; cursor:pointer}
   .mini a:hover{color:var(--ink)}
   .full{width:100%}
-  .warnbox{background:#2b2410; border:1px solid #6a5a1c; color:#e8cf7a;
-           padding:10px 12px; border-radius:10px; font-size:12.5px; margin:0 18px}
 </style>
 </head>
 <body>
@@ -95,13 +103,14 @@
   <span class="status" id="status"></span>
 </header>
 
-<p class="warnbox">
-  Everything here ends up in a public <code>profiles.json</code>. There is no login on a
-  static site, so anyone with the link can read every profile and anyone with the repo can
-  edit them. Fine for details you hand out on a card; not a place for anything private.
-</p>
 
-<div class="cols">
+
+<div class="tabs">
+  <button class="tab on" data-tab="profiles">Profiles</button>
+  <button class="tab" data-tab="invite">Invite someone</button>
+</div>
+
+<div class="cols" id="tab-profiles">
 
   <!-- ------------------------------------------------ list -->
   <div class="list">
@@ -224,6 +233,58 @@
   <div class="preview">
     <iframe id="frame" src="index.html" title="preview"></iframe>
     <p class="note" id="previewUrl"></p>
+  </div>
+
+</div>
+
+<div class="invite" id="tab-invite" style="display:none">
+
+  <div class="group">
+    <h4>Who is this for</h4>
+    <div class="row">
+      <div>
+        <label for="inviteId">Card ID</label>
+        <input id="inviteId" type="text" placeholder="ada_lovelace">
+      </div>
+      <div style="flex:0 0 200px; display:flex; align-items:flex-end; gap:6px">
+        <button id="inviteNew" style="flex:1">New ID</button>
+        <button id="invitePick" style="flex:1">Use selected</button>
+      </div>
+    </div>
+    <p class="note">A new ID creates a blank profile for them to fill in. An
+       existing one lets them edit what is already there.</p>
+  </div>
+
+  <div class="group">
+    <h4>What they may fill in</h4>
+    <div class="grid2" id="allowGrid"></div>
+    <p class="note">Unticked fields are hidden from their editor and keep whatever
+       you set here. Tick nothing and they see everything.</p>
+  </div>
+
+  <div class="group">
+    <h4>Settings they never see</h4>
+    <label for="inviteCc">Copy their submissions to</label>
+    <input id="inviteCc" type="text" placeholder="sales@protomatter.ai">
+    <label for="inviteCcMode">How to copy them</label>
+    <select id="inviteCcMode">
+      <option value="bcc">Bcc &mdash; hidden from the other recipients</option>
+      <option value="cc">Cc &mdash; everyone sees who else was copied</option>
+    </select>
+    <p class="note">Applied to their card but absent from their editor, so it
+       survives whatever they change.</p>
+  </div>
+
+  <div class="group">
+    <h4>The link to send them</h4>
+    <input class="linkout" id="inviteLink" readonly>
+    <div class="bar" style="margin-top:8px">
+      <button class="primary" id="inviteCreate">Create / update this invite</button>
+      <button id="inviteCopy">Copy link</button>
+      <button id="inviteOpen">Open it</button>
+    </div>
+    <p class="note">Creating writes the profile into this tab. It is live for them
+       once you download <code>profiles.json</code> and commit it.</p>
   </div>
 
 </div>
@@ -621,6 +682,112 @@ document.getElementById("file").addEventListener("change", (event) => {
     } catch (e){ say("That file is not valid JSON."); }
   };
   reader.readAsText(file);
+});
+
+
+/* ---------------------------------------------------------------- invites
+
+   An invite is just a profile plus two pieces of metadata:
+     _allow  which fields that person's editor shows
+     cc/ccMode  applied to their card but never shown to them
+   Underscore keys are metadata; index.html only reads the fields it knows. */
+
+const ALLOWABLE = [
+  ["name", "Name"], ["role", "Role"], ["company", "Team / company"],
+  ["email", "Email"], ["phone", "Phone"], ["site", "Website"],
+  ["emailSubject", "Email subject"], ["emailBody", "Email body"],
+  ["smsBody", "Text message"]
+];
+
+const allowGrid = document.getElementById("allowGrid");
+ALLOWABLE.forEach(([key, label]) => {
+  const wrap = document.createElement("label");
+  const box = document.createElement("input");
+  box.type = "checkbox";
+  box.checked = true;
+  box.dataset.allow = key;
+  wrap.appendChild(box);
+  wrap.appendChild(document.createTextNode(label));
+  allowGrid.appendChild(wrap);
+});
+
+function allowedFields(){
+  return Array.from(allowGrid.querySelectorAll("input"))
+    .filter(b => b.checked).map(b => b.dataset.allow);
+}
+
+function drawInviteLink(){
+  const id = slug(document.getElementById("inviteId").value);
+  document.getElementById("inviteLink").value = id ? editLinkFor(id) : "";
+}
+
+document.getElementById("inviteId").addEventListener("input", drawInviteLink);
+
+document.getElementById("inviteNew").addEventListener("click", () => {
+  document.getElementById("inviteId").value = newId();
+  drawInviteLink();
+});
+
+document.getElementById("invitePick").addEventListener("click", () => {
+  const id = current || Object.keys(profiles)[0];
+  if (!id) return say("No profile to use.");
+  document.getElementById("inviteId").value = id;
+  const existing = profiles[id] || {};
+  document.getElementById("inviteCc").value = existing.cc || "";
+  document.getElementById("inviteCcMode").value = existing.ccMode || "bcc";
+  const allow = existing._allow;
+  allowGrid.querySelectorAll("input").forEach(b => {
+    b.checked = !allow || allow.indexOf(b.dataset.allow) !== -1;
+  });
+  drawInviteLink();
+});
+
+document.getElementById("inviteCreate").addEventListener("click", () => {
+  const id = slug(document.getElementById("inviteId").value);
+  if (!id) return say("Give the invite a card ID.");
+  const allow = allowedFields();
+  const profile = Object.assign({}, profiles[id] || {});
+  // Everything ticked means no restriction at all, which is simpler to read
+  // later than a list that happens to contain every field.
+  if (allow.length && allow.length < ALLOWABLE.length) profile._allow = allow;
+  else delete profile._allow;
+  const cc = document.getElementById("inviteCc").value.trim();
+  if (cc){ profile.cc = cc; profile.ccMode = document.getElementById("inviteCcMode").value; }
+  else { delete profile.cc; delete profile.ccMode; }
+  profiles[id] = profile;
+  current = id;
+  edit(id);
+  dirty(true);
+  drawInviteLink();
+  say("Invite ready for " + id + " - download profiles.json to make it live.");
+});
+
+document.getElementById("inviteCopy").addEventListener("click", async () => {
+  const link = document.getElementById("inviteLink").value;
+  if (!link) return say("Create the invite first.");
+  await navigator.clipboard.writeText(link);
+  say("Copied - send that to them.");
+});
+
+document.getElementById("inviteOpen").addEventListener("click", () => {
+  const link = document.getElementById("inviteLink").value;
+  if (link) window.open(link, "_blank", "noopener");
+});
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
+    tab.classList.add("on");
+    const want = tab.dataset.tab;
+    document.getElementById("tab-profiles").style.display =
+      want === "profiles" ? "flex" : "none";
+    document.getElementById("tab-invite").style.display =
+      want === "invite" ? "block" : "none";
+    if (want === "invite" && !document.getElementById("inviteId").value){
+      document.getElementById("inviteId").value = current || newId();
+      drawInviteLink();
+    }
+  });
 });
 
 (async () => {
