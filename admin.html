@@ -1008,6 +1008,7 @@ async function loadFromFile(){
     const sharedResponse = await fetch("config.json", {cache:"no-store"});
     if (sharedResponse.ok){
       shared = await sharedResponse.json();
+      if (shared.company) document.title = "Card admin — " + shared.company;
       ["approverName","approverEmail","approvalNote"].forEach(k => {
         const el = document.getElementById(k);
         if (el) el.value = shared[k] || "";

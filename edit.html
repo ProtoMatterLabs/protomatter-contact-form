@@ -272,6 +272,7 @@ function field(key, label, placeholder, kind){
   el.id = key;
   if (placeholder) el.placeholder = placeholder;
   el.addEventListener("input", push);
+  if (key === "name") el.addEventListener("input", retitle);
   wrap.append(lab, el);
   if (["emailSubject","emailBody","smsBody"].indexOf(key) !== -1){
     const hint = document.createElement("p");
@@ -442,6 +443,13 @@ document.getElementById("accent").addEventListener("input", e => {
   if (/^#[0-9a-f]{6}$/i.test(e.target.value.trim())) setAccent(e.target.value.trim());
   else push();
 });
+
+function retitle(){
+  if (!PERSONAL) return;
+  const el = document.getElementById("name");
+  const name = (el && el.value || "").trim();
+  document.title = name ? "Edit my card — " + name : "Edit my card";
+}
 
 function drawAvatarPreview(){
   const box = document.getElementById("avatarNow");
@@ -801,6 +809,10 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     try { answer = await response.json(); } catch (e){ /* not JSON */ }
     if (!response.ok || (answer && String(answer.success) === "false"))
       throw new Error((answer && answer.message) || ("HTTP " + response.status));
+    /* Remember what was just sent, so a second send in the same sitting is
+       v2 and not another v1. Without this the approver gets two mails with
+       the same version number and no way to tell which is the later one. */
+    profiles[cardId] = Object.assign({}, profiles[cardId] || {}, {version: version});
     setStatus(false, "— sent for approval (version " + version + ")");
     showApproval(version);
   } catch (e){
@@ -859,10 +871,15 @@ async function load(){
     if (shared.allowAccent === false || stored.allowAccent === false)
       panels.look.box.style.display = "none";
     apply(mine);
+    // Browser history is a list of titles. "Edit my card" six times over tells
+    // you nothing; the name does.
+    const mine_name = (mine && mine.name) || "";
+    document.title = mine_name ? "Edit my card — " + mine_name : "Edit my card";
     document.getElementById("liveUrl").textContent =
       location.href.replace(/edit\.html.*$/, "") + "?c=" + cardId;
     if (draft) setStatus(false, "— restored from this browser");
   } else {
+    document.title = "Shared settings — every card";
     document.getElementById("title").textContent = "Shared settings";
     document.getElementById("sub").textContent = "Defaults that every card starts from.";
     apply(draft || shared);
