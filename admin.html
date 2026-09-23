@@ -63,6 +63,9 @@
          border-radius:var(--r); background:#fff}
   .note{color:var(--dim); font-size:12px; margin-top:6px}
   .status{font-size:13px; color:var(--ok)}
+  .inherit{white-space:pre-wrap; font-family:Consolas,monospace; font-size:11px;
+           color:#6d6d7a; border-left:2px solid var(--line); padding-left:8px; margin-top:5px}
+  .inherit.own{color:var(--ok); border-left-color:var(--ok); font-family:inherit}
   .warnbox{background:#2b2410; border:1px solid #6a5a1c; color:#e8cf7a;
            padding:10px 12px; border-radius:10px; font-size:12.5px; margin:0 18px}
 </style>
@@ -152,10 +155,24 @@
     </fieldset>
 
     <fieldset>
-      <legend>Overrides for this person</legend>
-      <label for="emailSubject">Email subject</label><input id="emailSubject" type="text">
-      <label for="emailBody">Email body</label><textarea id="emailBody"></textarea>
-      <label for="smsBody">Text message</label><textarea id="smsBody"></textarea>
+      <legend>Message wording — blank means "use the shared default"</legend>
+      <p class="note" style="margin:0 0 10px">
+        These are the messages a visitor sends <em>you</em> when they tap
+        <b>Email me</b> or <b>Text me</b> on this card. Leave a field empty and it
+        uses the shared wording from <code>config.json</code> &mdash; shown greyed out
+        below each box. Fill one in and only this person's card changes.
+      </p>
+      <label for="emailSubject">Email subject</label>
+      <input id="emailSubject" type="text">
+      <p class="note inherit" id="inheritSubject"></p>
+
+      <label for="emailBody">Email body</label>
+      <textarea id="emailBody"></textarea>
+      <p class="note inherit" id="inheritBody"></p>
+
+      <label for="smsBody">Text message</label>
+      <textarea id="smsBody"></textarea>
+      <p class="note inherit" id="inheritSms"></p>
     </fieldset>
 
     <div class="bar">
@@ -182,6 +199,7 @@
 const FIELDS = ["name","role","company","email","phone","site",
                 "cc","ccMode","emailSubject","emailBody","smsBody"];
 
+let shared = {};          // config.json: what a blank field falls back to
 let profiles = {};        // id -> profile object
 let selected = new Set(); // ids ticked for export
 let current = null;       // id being edited
@@ -293,6 +311,32 @@ function drawCount(){
     total + " profiles · " + filled + " filled · " + selected.size + " selected";
 }
 
+/* Show what an empty field will actually use. A blank box that silently
+   inherits is indistinguishable from a blank box that does nothing. */
+function drawInherited(){
+  const pairs = [
+    ["emailSubject", "inheritSubject", "email subject"],
+    ["emailBody", "inheritBody", "email body"],
+    ["smsBody", "inheritSms", "text message"]
+  ];
+  pairs.forEach(([field, target, label]) => {
+    const el = document.getElementById(target);
+    const mine = document.getElementById(field).value.trim();
+    if (mine){
+      el.textContent = "this card uses its own " + label;
+      el.className = "note inherit own";
+      return;
+    }
+    const fallback = (shared[field] || "").trim();
+    el.className = "note inherit";
+    el.textContent = fallback
+      ? "inherits: " + fallback
+      : (field === "smsBody"
+         ? "inherits: a message built from this person's details"
+         : "nothing set in config.json either");
+  });
+}
+
 function edit(id){
   current = id;
   const profile = profiles[id] || {};
@@ -300,6 +344,7 @@ function edit(id){
   document.getElementById("cardId").value = id;
   document.getElementById("idNote").textContent = linkFor(id);
   document.getElementById("whichId").textContent = "— " + id;
+  drawInherited();
   drawList();
   pushPreview();
 }
@@ -316,6 +361,7 @@ function collect(){
 function onEdit(){
   if (!current) return;
   profiles[current] = collect();
+  drawInherited();
   drawList();
   pushPreview();
 }
@@ -461,6 +507,10 @@ document.getElementById("file").addEventListener("change", (event) => {
 
 (async () => {
   document.getElementById("baseUrl").value = location.href.replace(/[^/]*$/, "");
+  try {
+    const sharedResponse = await fetch("config.json", {cache:"no-store"});
+    if (sharedResponse.ok) shared = await sharedResponse.json();
+  } catch (e){ /* editable without it, just no fallback preview */ }
   try {
     const response = await fetch("profiles.json", {cache:"no-store"});
     if (response.ok){
