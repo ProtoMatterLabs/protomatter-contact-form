@@ -6,15 +6,11 @@
   "phone": "",
   "site": "https://automatolabs.com",
   "links": [],
-
-  "endpoint": "",
-
+  "endpoint": "https://formsubmit.co/ajax/automatolabs@gmail.com",
   "emailSubject": "Nice meeting you",
   "emailBody": "Name:\nEmail:\nPhone:\n",
   "smsBody": "",
-
   "autoResponse": "Thanks for the details — good to meet you.\n\nHere are mine:\n{{name}}\n{{role}} at {{company}}\n{{email}}\n{{site}}\n\nI'll follow up properly shortly.",
-
   "formTitle": "Send me your details",
   "formSub": "your phone fills it in — one tap",
   "showForm": true,

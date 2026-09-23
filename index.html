@@ -93,10 +93,24 @@
   }
   .ref{margin-top:22px; text-align:center; color:#54545e; font-size:10.5px; letter-spacing:.05em}
   .hidden{display:none !important}
+  /* Impossible to miss: a form that silently discards submissions is worse
+     than one that is obviously switched off. */
+  #testBanner{
+    display:none; margin-bottom:16px; padding:11px 13px;
+    background:#3a2a0c; border:1px solid #8a6a1c; border-radius:10px;
+    color:#ffcf6b; font-size:13px; line-height:1.45;
+  }
+  #testBanner b{color:#ffe3a3}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <div id="testBanner">
+    <b>Test mode.</b> Nothing submitted here is sent or stored anywhere -
+    it only reaches the browser console. Set an endpoint in
+    <code>edit.html</code> to make it live.
+  </div>
 
   <div class="who">
     <div class="avatar" id="initials">&nbsp;</div>
@@ -228,6 +242,9 @@ function render(){
     document.getElementById("ref").textContent = "card " + cardId;
   }
 
+  document.getElementById("testBanner").style.display =
+    (c.showForm && !c.endpoint) ? "block" : "none";
+
   document.getElementById("phoneWrap").classList.toggle("hidden", !c.askPhone);
   document.getElementById("companyWrap").classList.toggle("hidden", !c.askCompany);
   document.getElementById("noteWrap").classList.toggle("hidden", !c.askNote);
@@ -337,7 +354,8 @@ form.addEventListener("submit", async (event) => {
 
   if (!CONFIG.endpoint){
     console.log("TEST MODE — would have sent:", Object.fromEntries(new FormData(form)));
-    return succeed("Test mode — nothing was sent. Set an endpoint in edit.html.");
+    return succeed("TEST MODE - this was NOT sent anywhere. It only went to the "
+                   + "browser console. Set an endpoint in edit.html to go live.");
   }
 
   try {
