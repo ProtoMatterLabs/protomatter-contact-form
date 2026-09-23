@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ProtoMatter — let's stay in touch</title>
+<meta name="color-scheme" content="dark light">
+<style>
+  :root{
+    --bg:#0e0e11; --card:#17171c; --line:#2a2a33; --ink:#f2f2f5;
+    --dim:#9a9aa6; --accent:#d62828; --ok:#2e9e5b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:flex; justify-content:center;
+    padding:24px 16px 48px;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{width:100%; max-width:440px}
+
+  header{margin-bottom:22px}
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-weight:700; font-size:20px; letter-spacing:-.01em;
+  }
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);flex:none}
+  .tag{color:var(--dim); font-size:14px; margin-top:6px}
+
+  .panel{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); padding:18px;
+  }
+
+  .vcard-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:14px; margin-bottom:18px;
+    background:var(--accent); color:#fff; font-weight:600; font-size:16px;
+    border:0; border-radius:var(--radius); text-decoration:none; cursor:pointer;
+  }
+  .vcard-btn:active{transform:translateY(1px)}
+
+  .divider{
+    display:flex; align-items:center; gap:12px;
+    color:var(--dim); font-size:13px; margin:18px 0;
+  }
+  .divider::before,.divider::after{
+    content:""; flex:1; height:1px; background:var(--line);
+  }
+
+  label{display:block; font-size:13px; color:var(--dim); margin:14px 0 6px}
+  label:first-of-type{margin-top:0}
+  .req::after{content:" *"; color:var(--accent)}
+
+  input,textarea{
+    width:100%; padding:13px 14px; font:inherit; font-size:16px; /* 16px stops iOS zoom */
+    color:var(--ink); background:#101014;
+    border:1px solid var(--line); border-radius:10px;
+  }
+  input:focus,textarea:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent}
+  textarea{min-height:84px; resize:vertical}
+
+  button.submit{
+    width:100%; margin-top:20px; padding:15px;
+    font:inherit; font-size:16px; font-weight:600;
+    color:#fff; background:#26262e; border:1px solid var(--line);
+    border-radius:var(--radius); cursor:pointer;
+  }
+  button.submit:enabled:hover{background:#30303a}
+  button.submit[disabled]{opacity:.6; cursor:default}
+
+  .note{color:var(--dim); font-size:12px; margin-top:14px; text-align:center}
+  .err{color:#ff8a80; font-size:13px; margin-top:12px; display:none}
+
+  #done{display:none; text-align:center; padding:28px 8px}
+  #done h2{margin:0 0 8px; font-size:20px}
+  #done p{color:var(--dim); margin:0}
+  .check{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--ok); color:#fff; font-size:28px; line-height:52px;
+    margin:0 auto 14px;
+  }
+  .card-ref{
+    margin-top:16px; text-align:center;
+    color:#5a5a66; font-size:11px; letter-spacing:.04em;
+  }
+  @media (prefers-color-scheme: light){
+    :root{--bg:#f6f6f8;--card:#fff;--line:#e2e2e8;--ink:#15151a;--dim:#6b6b78}
+    input,textarea{background:#fafafc}
+    button.submit{background:#ececf2;color:#15151a}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand"><span class="dot"></span><span id="brandName">ProtoMatter</span></div>
+    <div class="tag" id="tagline">Real hardware. Real code. Real community.</div>
+  </header>
+
+  <div class="panel">
+
+    <!-- Their phone fills this in for them; one tap to save us. -->
+    <a class="vcard-btn" id="saveContact" href="#" download="contact.vcf">
+      <span>&#128229;</span><span>Save my contact</span>
+    </a>
+
+    <div class="divider">and send me yours</div>
+
+    <form id="form" novalidate>
+      <!--
+        autocomplete tokens are the whole point of this page: the browser
+        fills name / email / phone / company from what it already knows, so
+        the visitor taps rather than types.
+      -->
+      <label class="req" for="name">Your name</label>
+      <input id="name" name="name" type="text" autocomplete="name"
+             enterkeyhint="next" required placeholder="Ada Lovelace">
+
+      <label class="req" for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email"
+             inputmode="email" enterkeyhint="next" required placeholder="ada@example.com">
+
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel"
+             inputmode="tel" enterkeyhint="next" placeholder="Optional">
+
+      <label for="company">Company</label>
+      <input id="company" name="company" type="text" autocomplete="organization"
+             enterkeyhint="next" placeholder="Optional">
+
+      <label for="note">What are you working on?</label>
+      <textarea id="note" name="note" enterkeyhint="send"
+                placeholder="So I remember the conversation."></textarea>
+
+      <!-- FormSubmit control fields -->
+      <input type="hidden" name="_subject" id="subjField" value="New contact from a card">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+      <input type="text"   name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+      <!-- which physical card this came from, read from ?c= -->
+      <input type="hidden" name="card" id="cardField" value="">
+
+      <button class="submit" id="submitBtn" type="submit">Send</button>
+      <div class="err" id="err"></div>
+      <div class="note">Goes straight to my inbox. Nothing else, no list.</div>
+    </form>
+
+    <div id="done">
+      <div class="check">&#10003;</div>
+      <h2>Got it — thanks.</h2>
+      <p>I'll be in touch shortly.</p>
+    </div>
+
+  </div>
+
+  <div class="card-ref" id="cardRef"></div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   EDIT THIS BLOCK. Everything else is wiring.
+   ------------------------------------------------------------------ */
+const CONFIG = {
+  // PASTE YOUR FORMSPREE FORM ID HERE.
+  // Formspree dashboard -> your form -> the endpoint looks like
+  //   https://formspree.io/f/xdoqwerty
+  // Until this is filled in the form runs in test mode: it validates and
+  // shows the success state without sending anything anywhere.
+  endpoint: "",
+
+  // Alternative with no account at all: FormSubmit. Put your address in
+  // directly, submit once, click the confirmation email, then replace it with
+  // the alias they give you so your address is not sitting in public HTML:
+  //   endpoint: "https://formsubmit.co/ajax/abc123def456"
+
+  brand:    "ProtoMatter",
+  tagline:  "Real hardware. Real code. Real community.",
+
+  // Used to build the vCard the visitor saves.
+  me: {
+    fullName: "Douglas",
+    org:      "ProtoMatter Labs",
+    title:    "",
+    email:    "automatolabs@gmail.com",
+    phone:    "",
+    url:      "https://automatolabs.com"
+  }
+};
+/* ---------------------------------------------------------------- */
+
+document.getElementById("brandName").textContent = CONFIG.brand;
+document.getElementById("tagline").textContent = CONFIG.tagline;
+
+// Which card was tapped? ?c=ada  ->  tells you who you handed it to.
+const cardId = new URLSearchParams(location.search).get("c") || "";
+if (cardId) {
+  document.getElementById("cardField").value = cardId;
+  document.getElementById("subjField").value = "New contact from card: " + cardId;
+  document.getElementById("cardRef").textContent = "card " + cardId;
+}
+
+/* vCard built client-side so there is no second file to host, and no
+   request that could fail while someone is standing in front of you. */
+function buildVCard(me) {
+  const lines = [
+    "BEGIN:VCARD", "VERSION:3.0",
+    "N:" + me.fullName, "FN:" + me.fullName
+  ];
+  if (me.org)   lines.push("ORG:" + me.org);
+  if (me.title) lines.push("TITLE:" + me.title);
+  if (me.phone) lines.push("TEL;TYPE=CELL:" + me.phone);
+  if (me.email) lines.push("EMAIL;TYPE=INTERNET:" + me.email);
+  if (me.url)   lines.push("URL:" + me.url);
+  lines.push("END:VCARD");
+  return lines.join("\r\n") + "\r\n";   // vCard requires CRLF
+}
+
+const vcfBlob = new Blob([buildVCard(CONFIG.me)], { type: "text/vcard;charset=utf-8" });
+const saveBtn = document.getElementById("saveContact");
+saveBtn.href = URL.createObjectURL(vcfBlob);
+saveBtn.download = CONFIG.me.fullName.replace(/\s+/g, "-").toLowerCase() + ".vcf";
+
+const form = document.getElementById("form");
+const btn = document.getElementById("submitBtn");
+const err = document.getElementById("err");
+
+function fail(message) {
+  err.textContent = message;
+  err.style.display = "block";
+  btn.disabled = false;
+  btn.textContent = "Send";
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  err.style.display = "none";
+
+  const name = form.name.value.trim();
+  const email = form.email.value.trim();
+  if (!name)  return fail("Please add your name.");
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("That email does not look right.");
+
+  btn.disabled = true;
+  btn.textContent = "Sending…";
+
+  // Test mode: no endpoint configured yet. Show the real success state so the
+  // page can be checked end to end without wiring up a relay first.
+  if (!CONFIG.endpoint) {
+    console.log("TEST MODE — would have sent:",
+                Object.fromEntries(new FormData(form)));
+    form.style.display = "none";
+    const done = document.getElementById("done");
+    done.style.display = "block";
+    done.querySelector("p").textContent =
+      "Test mode — nothing was sent. Add your Formspree ID to CONFIG.endpoint.";
+    return;
+  }
+
+  try {
+    const response = await fetch(CONFIG.endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(form)))
+    });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    form.style.display = "none";
+    document.getElementById("done").style.display = "block";
+  } catch (e) {
+    // Never strand someone mid-exchange: fall back to their mail app.
+    fail("Could not send just now. Tap here to email instead.");
+    err.innerHTML = 'Could not send just now. <a style="color:#ff8a80" href="' +
+      "mailto:" + CONFIG.me.email +
+      "?subject=" + encodeURIComponent("Contact from card " + (cardId || "")) +
+      "&body=" + encodeURIComponent(
+        "Name: " + name + "\nEmail: " + email +
+        "\nPhone: " + form.phone.value + "\nCompany: " + form.company.value +
+        "\n\n" + form.note.value) +
+      '">email it instead</a>.';
+  }
+});
+</script>
+</body>
+</html>
