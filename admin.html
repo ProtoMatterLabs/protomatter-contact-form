@@ -66,6 +66,16 @@
   .inherit{white-space:pre-wrap; font-family:Consolas,monospace; font-size:11px;
            color:#6d6d7a; border-left:2px solid var(--line); padding-left:8px; margin-top:5px}
   .inherit.own{color:var(--ok); border-left-color:var(--ok); font-family:inherit}
+  .group{border:1px solid var(--line); border-radius:var(--r);
+         padding:10px 12px 12px; margin-bottom:12px}
+  .group h4{margin:0 0 8px; font-size:10.5px; color:var(--dim); font-weight:600;
+            text-transform:uppercase; letter-spacing:.07em}
+  .group .bar{margin:0}
+  .group .bar + .bar{margin-top:6px}
+  .mini{display:flex; gap:6px; align-items:center; font-size:12px; color:var(--dim)}
+  .mini a{color:var(--dim); text-decoration:underline; cursor:pointer}
+  .mini a:hover{color:var(--ink)}
+  .full{width:100%}
   .warnbox{background:#2b2410; border:1px solid #6a5a1c; color:#e8cf7a;
            padding:10px 12px; border-radius:10px; font-size:12.5px; margin:0 18px}
 </style>
@@ -79,6 +89,9 @@
     <input id="baseUrl" type="url" placeholder="https://protomatterlabs.github.io/protomatter-contact-form/">
   </div>
   <div class="grow"></div>
+  <span id="dirtyFlag" style="display:none; color:#e8cf7a; font-size:13px">
+    unsaved &mdash; download profiles.json and commit it
+  </span>
   <span class="status" id="status"></span>
 </header>
 
@@ -92,35 +105,35 @@
 
   <!-- ------------------------------------------------ list -->
   <div class="list">
-    <div class="bar">
-      <button class="primary" id="add">New profile</button>
-      <button id="addMany">Add 10 blanks</button>
-      <button id="del">Delete</button>
+    <div class="group">
+      <h4>Profiles</h4>
+      <div class="bar">
+        <button class="primary" id="add">New profile</button>
+        <button id="addMany">+10 blank</button>
+        <button id="del">Delete ticked</button>
+      </div>
     </div>
-    <div class="bar">
-      <button id="all">Select all</button>
-      <button id="none">Select none</button>
-      <button id="blanks">Only filled</button>
-    </div>
+    <p class="mini" style="margin:0 0 6px">
+      Tick: <a id="all">all</a> &middot; <a id="none">none</a> &middot;
+      <a id="blanks">filled only</a>
+      <span style="flex:1"></span><span id="count"></span>
+    </p>
     <div class="scroll">
       <table>
         <thead><tr><th class="cb"></th><th>ID</th><th>Name</th><th>Role</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
-    <div class="bar" style="margin-top:12px">
-      <button class="ok" id="csv">Download CSV for NFC Studio</button>
-      <button id="links">Copy links</button>
+    <div class="group" style="margin-top:12px">
+      <h4>Ticked profiles</h4>
+      <div class="bar">
+        <button class="ok full" id="csv">Download CSV for NFC Studio</button>
+      </div>
+      <div class="bar">
+        <button id="links">Copy card links</button>
+        <button id="copyEditLink">Copy editor links</button>
+      </div>
     </div>
-    <div class="bar">
-      <button id="openLive">Open their card</button>
-      <button id="openTheirEdit">Open their editor</button>
-      <button id="copyEditLink">Copy editor link</button>
-    </div>
-    <div class="bar">
-      <button id="mergeOne">Paste someone's details…</button>
-    </div>
-    <p class="note" id="count"></p>
   </div>
 
   <!-- ------------------------------------------------ editor -->
@@ -133,11 +146,15 @@
           <input id="cardId" type="text" placeholder="ada_lovelace">
         </div>
         <div style="flex:0 0 220px; display:flex; align-items:flex-end; gap:6px">
-          <button id="fromName" style="flex:1">Use the name</button>
+          <button id="fromName" style="flex:1">ID from name</button>
           <button id="copyId" style="flex:1">Copy ID</button>
         </div>
       </div>
       <p class="note" id="idNote"></p>
+      <div class="bar" style="margin:8px 0 2px">
+        <button id="openLive">Open their card</button>
+        <button id="openTheirEdit">Open their editor</button>
+      </div>
 
       <div class="row">
         <div><label for="name">Name</label><input id="name" type="text"></div>
@@ -184,16 +201,23 @@
       <p class="note inherit" id="inheritSms"></p>
     </fieldset>
 
-    <div class="bar">
-      <button class="primary" id="save">Save profiles.json</button>
-      <button id="copyJson">Copy JSON</button>
-      <button id="load">Load profiles.json…</button>
+    <div class="group">
+      <h4>Publish</h4>
+      <div class="bar">
+        <button class="primary full" id="save">Download profiles.json</button>
+      </div>
+      <div class="bar">
+        <button id="mergeOne">Paste someone's details</button>
+        <button id="load">Load a file</button>
+        <button id="copyJson">Copy JSON</button>
+      </div>
+      <p class="note" style="margin-top:8px">
+        <b>Nothing here publishes.</b> This downloads <code>profiles.json</code> to your
+        computer; the cards only change once you commit that file next to
+        <code>index.html</code>. Until then your edits live in this tab and nowhere else.
+      </p>
       <input id="file" type="file" accept=".json,application/json" style="display:none">
     </div>
-    <p class="note">
-      Saving downloads the file. Put it next to <code>index.html</code> and commit it;
-      the pages read it on load.
-    </p>
   </div>
 
   <!-- ------------------------------------------------ preview -->
@@ -216,6 +240,20 @@ let ready = false;
 
 const frame = document.getElementById("frame");
 const statusEl = document.getElementById("status");
+
+/* Nothing here writes to a server: edits live in this tab until the file is
+   downloaded and committed. Say so, rather than letting a closed tab lose work. */
+let unsaved = false;
+function dirty(state){
+  unsaved = state;
+  const flag = document.getElementById("dirtyFlag");
+  if (flag) flag.style.display = state ? "inline" : "none";
+}
+window.addEventListener("beforeunload", (event) => {
+  if (!unsaved) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
 
 function say(message){
   statusEl.textContent = message;
@@ -370,6 +408,7 @@ function collect(){
 function onEdit(){
   if (!current) return;
   profiles[current] = collect();
+  dirty(true);
   drawInherited();
   drawList();
   pushPreview();
@@ -388,23 +427,34 @@ FIELDS.forEach(k => {
 });
 document.getElementById("baseUrl").addEventListener("input", () => { drawCount(); pushPreview(); });
 
-document.getElementById("cardId").addEventListener("change", () => {
+/* One rename path. The id box commits on blur, and clicking a button blurs it,
+   so a naive pair of handlers fired rename twice - the second overwriting what
+   had just been typed. */
+function commitId(wanted){
   if (!current) return;
-  const wanted = document.getElementById("cardId").value;
-  const now = rename(current, wanted);
+  const clean = slug(wanted);
+  if (!clean) return say("An ID needs at least one letter or digit.");
+  const box = document.getElementById("cardId");
+  if (clean === current){ box.value = current; return; }
+  const now = rename(current, clean);
   current = now;
   edit(now);
+  dirty(true);
   say("Card ID is now " + now);
+}
+
+const idBox = document.getElementById("cardId");
+idBox.addEventListener("change", () => commitId(idBox.value));
+idBox.addEventListener("keydown", (event) => {
+  if (event.key === "Enter"){ event.preventDefault(); commitId(idBox.value); }
 });
 
 document.getElementById("fromName").addEventListener("click", () => {
   if (!current) return;
   const wanted = slug(document.getElementById("name").value);
   if (!wanted) return say("Give the profile a name first.");
-  const now = rename(current, wanted);
-  current = now;
-  edit(now);
-  say("Card ID is now " + now);
+  idBox.value = wanted;       // so the single commit below is the one that lands
+  commitId(wanted);
 });
 
 frame.addEventListener("load", () => { ready = true; pushPreview(); });
@@ -416,6 +466,7 @@ document.getElementById("add").addEventListener("click", () => {
   profiles[id] = {};
   selected.add(id);
   edit(id);
+  dirty(true);
   say("Added " + id);
 });
 
