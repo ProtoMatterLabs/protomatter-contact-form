@@ -174,19 +174,17 @@ const CONFIG = {
 
   // Mailed straight back to anyone who submits the form, automatically.
   // Works on FormSubmit for free; Formspree calls it an autoresponse.
-  autoResponse:
-    "Thanks for the details - good to meet you.
-
-" +
-    "Here are mine:
-" +
-    "{{name}}
-{{role}} at {{company}}
-{{email}}
-{{site}}
-
-" +
-    "I'll follow up properly shortly.",
+  autoResponse: [
+    "Thanks for the details — good to meet you.",
+    "",
+    "Here are mine:",
+    "{{name}}",
+    "{{role}} at {{company}}",
+    "{{email}}",
+    "{{site}}",
+    "",
+    "I'll follow up properly shortly."
+  ].join("\n"),
 
   emailSubject: "Nice meeting you",
   emailBody:    "Name:\nEmail:\nPhone:\n",
