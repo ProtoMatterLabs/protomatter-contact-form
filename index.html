@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ProtoMatter — contact</title>
 <meta name="color-scheme" content="dark light">
-<!-- Testing in the open, but not for the open: keep it out of search
-     results. Anyone with the link still gets in; crawlers do not. -->
+<!-- Public so it can be hosted, but there is no reason for it to be findable.
+     Anyone with the link still gets in; crawlers do not. -->
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -28,7 +28,6 @@
   }
   .wrap{width:100%; max-width:420px}
 
-  /* ---- identity ---- */
   .who{text-align:center; margin-bottom:24px}
   .avatar{
     width:72px;height:72px;border-radius:50%;
@@ -39,7 +38,6 @@
   .who h1{margin:0; font-size:23px; letter-spacing:-.02em}
   .who .role{color:var(--dim); font-size:15px; margin-top:3px}
 
-  /* ---- action list ---- */
   .actions{display:flex; flex-direction:column; gap:10px}
   .act{
     display:flex; align-items:center; gap:14px;
@@ -63,7 +61,6 @@
   .act.primary .ico{background:rgba(255,255,255,.18); color:#fff}
   .act.primary .sub, .act.primary .arrow{color:rgba(255,255,255,.82)}
 
-  /* ---- form ---- */
   #formPanel{
     display:none; margin-top:12px; padding:16px;
     background:var(--card); border:1px solid var(--line); border-radius:var(--r);
@@ -95,20 +92,20 @@
     color:#fff;font-size:26px;line-height:50px;margin:0 auto 12px;
   }
   .ref{margin-top:22px; text-align:center; color:#54545e; font-size:10.5px; letter-spacing:.05em}
+  .hidden{display:none !important}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="who">
-    <div class="avatar" id="initials">--</div>
+    <div class="avatar" id="initials">&nbsp;</div>
     <h1 id="name">&nbsp;</h1>
     <div class="role" id="role">&nbsp;</div>
   </div>
 
   <div class="actions" id="actions"></div>
 
-  <!-- Revealed by the "Send me your details" action -->
   <div id="formPanel">
     <form id="form" novalidate>
       <label class="req" for="fname">Your name</label>
@@ -119,29 +116,34 @@
       <input id="femail" name="email" type="email" autocomplete="email"
              inputmode="email" enterkeyhint="next" required placeholder="ada@example.com">
 
-      <label for="fphone">Phone</label>
-      <input id="fphone" name="phone" type="tel" autocomplete="tel"
-             inputmode="tel" enterkeyhint="next" placeholder="Optional">
+      <div id="phoneWrap">
+        <label for="fphone">Phone</label>
+        <input id="fphone" name="phone" type="tel" autocomplete="tel"
+               inputmode="tel" enterkeyhint="next" placeholder="Optional">
+      </div>
 
-      <label for="fcompany">Company</label>
-      <input id="fcompany" name="company" type="text" autocomplete="organization"
-             enterkeyhint="next" placeholder="Optional">
+      <div id="companyWrap">
+        <label for="fcompany">Company</label>
+        <input id="fcompany" name="company" type="text" autocomplete="organization"
+               enterkeyhint="next" placeholder="Optional">
+      </div>
 
-      <label for="fnote">What are you working on?</label>
-      <textarea id="fnote" name="note" enterkeyhint="send"
-                placeholder="So I remember the conversation."></textarea>
+      <div id="noteWrap">
+        <label for="fnote" id="noteLabel">What are you working on?</label>
+        <textarea id="fnote" name="note" enterkeyhint="send"
+                  placeholder="So I remember the conversation."></textarea>
+      </div>
 
       <input type="hidden" name="_subject" id="subjField" value="New contact from a card">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_template" value="table">
-      <!-- FormSubmit mails this straight back to whoever submitted, so they
-           get your details without you lifting a finger. -->
+      <!-- Mailed straight back to whoever submitted, automatically. -->
       <input type="hidden" name="_autoresponse" id="autoField" value="">
       <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
       <input type="hidden" name="card" id="cardField" value="">
-      <!-- Filled in at submit time, once their address is known. These arrive
-           in the notification email as clickable links, so replying with your
-           details is one tap from the inbox. -->
+      <!-- Filled at submit time, once their address is known. These arrive in
+           the notification as clickable links, so replying with your details
+           is one tap from the inbox. -->
       <input type="hidden" name="reply_by_email" id="replyEmail" value="">
       <input type="hidden" name="reply_by_text" id="replyText" value="">
 
@@ -161,181 +163,148 @@
 </div>
 
 <script>
-/* ==================================================================
-   EDIT THIS. Everything below it is wiring.
-   ================================================================== */
-const CONFIG = {
-  name:    "Douglas",
-  role:    "CEO",
-  company: "ProtoMatter Labs",
-  email:   "automatolabs@gmail.com",
-  phone:   "",                              // e.g. "+15555551234"
-  site:    "https://automatolabs.com",
-  links:   [
-    // { label:"LinkedIn", sub:"connect", icon:"in", url:"https://linkedin.com/in/..." },
-  ],
-
-  // Where the form posts.
-  //
-  // Empty = test mode: validates and shows the success screen without
-  // sending, so the page can be checked before wiring anything up.
-  //
-  // To go live, put your address in directly:
-  //     endpoint: "https://formsubmit.co/ajax/automatolabs@gmail.com"
-  // Submit once, click the confirmation email, then replace the address with
-  // the random alias that email gives you, so it is not sitting in the page
-  // source for scrapers:
-  //     endpoint: "https://formsubmit.co/ajax/abc123def456"
-  //
-  // No account, no dashboard. GitHub/Cloudflare only serve files, so
-  // something has to receive the POST -- that is all this is.
-  endpoint: "",
-
-  // Mailed straight back to anyone who submits the form, automatically.
-  // Works on FormSubmit for free; Formspree calls it an autoresponse.
-  autoResponse: [
-    "Thanks for the details — good to meet you.",
-    "",
-    "Here are mine:",
-    "{{name}}",
-    "{{role}} at {{company}}",
-    "{{email}}",
-    "{{site}}",
-    "",
-    "I'll follow up properly shortly."
-  ].join("\n"),
-
-  emailSubject: "Nice meeting you",
-  emailBody:    "Name:\nEmail:\nPhone:\n",
-  smsBody:      ""      // filled in below if left blank
+/* Settings live in config.json so they can be changed with edit.html instead
+   of by hand. These defaults apply if that file is missing or unreadable, so
+   the page never arrives blank. */
+const DEFAULTS = {
+  name:"", role:"", company:"", email:"", phone:"", site:"", links:[],
+  endpoint:"",
+  emailSubject:"Nice meeting you",
+  emailBody:"Name:\nEmail:\nPhone:\n",
+  smsBody:"",
+  autoResponse:"",
+  formTitle:"Send me your details",
+  formSub:"your phone fills it in — one tap",
+  showForm:true, askPhone:true, askCompany:true, askNote:true,
+  noteLabel:"What are you working on?"
 };
-/* ================================================================== */
 
+let CONFIG = Object.assign({}, DEFAULTS);
 const cardId = new URLSearchParams(location.search).get("c") || "";
 
-CONFIG.smsBody = CONFIG.smsBody ||
-  "Hi! Saving your details.\n\n" + CONFIG.company + "\n" + CONFIG.email +
-  "\n" + CONFIG.site + "\n\nMine are:\nName:\nEmail:\n";
-
-// --- identity ---
-document.getElementById("name").textContent = CONFIG.name;
-document.getElementById("role").textContent =
-  [CONFIG.role, CONFIG.company].filter(Boolean).join(" · ");
-document.getElementById("initials").textContent =
-  CONFIG.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-
-document.getElementById("autoField").value = CONFIG.autoResponse
-  .replace(/{{name}}/g, CONFIG.name)
-  .replace(/{{role}}/g, CONFIG.role)
-  .replace(/{{company}}/g, CONFIG.company)
-  .replace(/{{email}}/g, CONFIG.email)
-  .replace(/{{site}}/g, CONFIG.site);
-
-if (cardId) {
-  document.getElementById("cardField").value = cardId;
-  document.getElementById("subjField").value = "New contact from card: " + cardId;
-  document.getElementById("ref").textContent = "card " + cardId;
-}
-
-/* vCard is built here rather than hosted, so there is no second file and
-   nothing that can fail while someone is standing in front of you.
-   CRLF because the spec requires it and some parsers are strict. */
-function vcard(c) {
-  const bits = c.name.trim().split(/\s+/);
-  const last = bits.length > 1 ? bits[bits.length - 1] : c.name;
+function vcard(c){
+  const bits = (c.name || "").trim().split(/\s+/);
+  const last = bits.length > 1 ? bits[bits.length - 1] : (c.name || "");
   const first = bits.length > 1 ? bits.slice(0, -1).join(" ") : "";
-  const rows = ["BEGIN:VCARD", "VERSION:3.0",
-                "N:" + last + ";" + first + ";;;", "FN:" + c.name];
+  const rows = ["BEGIN:VCARD","VERSION:3.0",
+                "N:" + last + ";" + first + ";;;","FN:" + (c.name || "")];
   if (c.company) rows.push("ORG:" + c.company);
-  if (c.role)    rows.push("TITLE:" + c.role);
+  if (c.role)    rows.push("TITLE:" + c.role);      // vCard has TITLE; MECARD does not
   if (c.phone)   rows.push("TEL;TYPE=CELL:" + c.phone);
   if (c.email)   rows.push("EMAIL;TYPE=INTERNET:" + c.email);
   if (c.site)    rows.push("URL:" + c.site);
   rows.push("END:VCARD");
-  return rows.join("\r\n") + "\r\n";
+  return rows.join("\r\n") + "\r\n";              // CRLF: the spec requires it
 }
 
-const vcfUrl = URL.createObjectURL(new Blob([vcard(CONFIG)], {type:"text/vcard;charset=utf-8"}));
+function myDetails(c){
+  return [
+    c.name,
+    [c.role, c.company].filter(Boolean).join(" at "),
+    c.email, c.phone, c.site
+  ].filter(Boolean);
+}
 
-// --- build the action list ---
-const actions = [];
+function render(){
+  const c = CONFIG;
 
-actions.push({
-  primary:true, icon:"\u{1F4C7}", label:"Save my contact",
-  sub:"adds me to your phone", href:vcfUrl,
-  download:CONFIG.name.replace(/\s+/g,"-").toLowerCase() + ".vcf"
-});
+  document.getElementById("name").textContent = c.name || " ";
+  document.getElementById("role").textContent =
+    [c.role, c.company].filter(Boolean).join(" · ") || " ";
+  document.getElementById("initials").textContent =
+    (c.name || "?").split(/\s+/).map(w => w[0] || "").join("").slice(0,2).toUpperCase();
 
-actions.push({
-  icon:"\u{2709}", label:"Email me", sub:"opens a message, already addressed",
-  href:"mailto:" + CONFIG.email +
-       "?subject=" + encodeURIComponent(CONFIG.emailSubject) +
-       "&body=" + encodeURIComponent(CONFIG.emailBody)
-});
+  const smsBody = c.smsBody ||
+    ("Hi! Saving your details.\n\n" + myDetails(c).join("\n") + "\n\nMine are:\nName:\nEmail:\n");
 
-if (CONFIG.phone) {
-  actions.push({
-    icon:"\u{1F4AC}", label:"Text me", sub:"opens a text, already written",
-    href:"sms:" + CONFIG.phone + "?body=" + encodeURIComponent(CONFIG.smsBody)
+  document.getElementById("autoField").value = (c.autoResponse || "")
+    .replace(/{{name}}/g, c.name).replace(/{{role}}/g, c.role)
+    .replace(/{{company}}/g, c.company).replace(/{{email}}/g, c.email)
+    .replace(/{{site}}/g, c.site);
+
+  if (cardId){
+    document.getElementById("cardField").value = cardId;
+    document.getElementById("subjField").value = "New contact from card: " + cardId;
+    document.getElementById("ref").textContent = "card " + cardId;
+  }
+
+  document.getElementById("phoneWrap").classList.toggle("hidden", !c.askPhone);
+  document.getElementById("companyWrap").classList.toggle("hidden", !c.askCompany);
+  document.getElementById("noteWrap").classList.toggle("hidden", !c.askNote);
+  document.getElementById("noteLabel").textContent = c.noteLabel || "Notes";
+
+  const acts = [];
+  if (c.name){
+    const url = URL.createObjectURL(new Blob([vcard(c)], {type:"text/vcard;charset=utf-8"}));
+    acts.push({primary:true, icon:"\u{1F4C7}", label:"Save my contact",
+               sub:"adds me to your phone", href:url,
+               download:c.name.replace(/\s+/g,"-").toLowerCase() + ".vcf"});
+  }
+  if (c.email){
+    acts.push({icon:"✉", label:"Email me", sub:"opens a message, already addressed",
+               href:"mailto:" + c.email +
+                    "?subject=" + encodeURIComponent(c.emailSubject || "") +
+                    "&body=" + encodeURIComponent(c.emailBody || "")});
+  }
+  if (c.phone){
+    acts.push({icon:"\u{1F4AC}", label:"Text me", sub:"opens a text, already written",
+               href:"sms:" + c.phone + "?body=" + encodeURIComponent(smsBody)});
+    acts.push({icon:"\u{1F4DE}", label:"Call me", sub:c.phone, href:"tel:" + c.phone});
+  }
+  if (c.site){
+    acts.push({icon:"\u{1F310}", label:"Our website",
+               sub:c.site.replace(/^https?:\/\//,""), href:c.site});
+  }
+  (c.links || []).forEach(l => {
+    if (l && l.url) acts.push({icon:l.icon || "\u{1F517}", label:l.label || l.url,
+                               sub:l.sub || "", href:l.url});
   });
-  actions.push({ icon:"\u{1F4DE}", label:"Call me", sub:CONFIG.phone,
-                 href:"tel:" + CONFIG.phone });
-}
-
-if (CONFIG.site) {
-  actions.push({ icon:"\u{1F310}", label:"Our website",
-                 sub:CONFIG.site.replace(/^https?:\/\//,""), href:CONFIG.site });
-}
-
-CONFIG.links.forEach(l => actions.push({ icon:l.icon || "\u{1F517}",
-                                         label:l.label, sub:l.sub || "", href:l.url }));
-
-actions.push({
-  icon:"\u{1F4E4}", label:"Send me your details",
-  sub:"your phone fills it in — one tap", action:"form"
-});
-
-const list = document.getElementById("actions");
-actions.forEach(a => {
-  const el = document.createElement(a.href ? "a" : "button");
-  el.className = "act" + (a.primary ? " primary" : "");
-  if (a.href) {
-    el.href = a.href;
-    if (a.download) el.download = a.download;
-    if (/^https?:/.test(a.href)) { el.target = "_blank"; el.rel = "noopener"; }
-  } else {
-    el.type = "button";
+  if (c.showForm){
+    acts.push({icon:"\u{1F4E4}", label:c.formTitle, sub:c.formSub, action:"form"});
   }
-  el.innerHTML =
-    '<span class="ico">' + a.icon + '</span>' +
-    '<span class="txt">' + a.label +
+
+  const list = document.getElementById("actions");
+  list.innerHTML = "";
+  document.getElementById("formPanel").style.display = "none";
+
+  acts.forEach(a => {
+    const el = document.createElement(a.href ? "a" : "button");
+    el.className = "act" + (a.primary ? " primary" : "");
+    if (a.href){
+      el.href = a.href;
+      if (a.download) el.download = a.download;
+      if (/^https?:/.test(a.href)){ el.target = "_blank"; el.rel = "noopener"; }
+    } else {
+      el.type = "button";
+    }
+    el.innerHTML =
+      '<span class="ico">' + a.icon + '</span><span class="txt">' + a.label +
       (a.sub ? '<span class="sub">' + a.sub + '</span>' : '') +
-    '</span><span class="arrow">›</span>';
-  if (a.action === "form") {
-    el.addEventListener("click", () => {
-      const panel = document.getElementById("formPanel");
-      panel.style.display = "block";
-      el.style.display = "none";
-      panel.scrollIntoView({behavior:"smooth", block:"nearest"});
-      document.getElementById("fname").focus({preventScroll:true});
-    });
-  }
-  list.appendChild(el);
-});
+      '</span><span class="arrow">›</span>';
+    if (a.action === "form"){
+      el.addEventListener("click", () => {
+        const panel = document.getElementById("formPanel");
+        panel.style.display = "block";
+        el.style.display = "none";
+        panel.scrollIntoView({behavior:"smooth", block:"nearest"});
+        document.getElementById("fname").focus({preventScroll:true});
+      });
+    }
+    list.appendChild(el);
+  });
+}
 
-// --- form submit ---
 const form = document.getElementById("form");
 const sendBtn = document.getElementById("sendBtn");
-const err = document.getElementById("err");
+const errBox = document.getElementById("err");
 
-function fail(html) {
-  err.innerHTML = html;
-  err.style.display = "block";
+function fail(html){
+  errBox.innerHTML = html;
+  errBox.style.display = "block";
   sendBtn.disabled = false;
   sendBtn.textContent = "Send";
 }
-
-function succeed(message) {
+function succeed(message){
   form.style.display = "none";
   const done = document.getElementById("done");
   if (message) document.getElementById("doneMsg").textContent = message;
@@ -344,64 +313,44 @@ function succeed(message) {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  err.style.display = "none";
+  errBox.style.display = "none";
 
   const name = form.name.value.trim();
   const email = form.email.value.trim();
   if (!name) return fail("Please add your name.");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("That email does not look right.");
 
-  // Build the reply links now, because only now do we know their address.
-  // These ride along in the notification email as clickable links: tapping one
-  // opens a message back to them already filled in with your details, so the
-  // exchange closes from the inbox without opening anything else.
-  // Filter only the optional CONFIG values, not the deliberate blank lines --
-  // a blank string is falsy, so filtering the whole array flattens the layout.
-  const mine = [
-    CONFIG.name,
-    [CONFIG.role, CONFIG.company].filter(Boolean).join(" at "),
-    CONFIG.email,
-    CONFIG.phone,
-    CONFIG.site
-  ].filter(Boolean);
-
-  const replyBody = [
-    "Hi " + name.split(/\s+/)[0] + " — great to meet you.",
-    "",
-    "Here are my details:",
-    ...mine,
-    ""
-  ].join("\n");
+  // Built now because only now is their address known. Blank lines are
+  // deliberate, so filter the optional values rather than the whole array.
+  const replyBody = ["Hi " + name.split(/\s+/)[0] + " — great to meet you.", "",
+                     "Here are my details:", ...myDetails(CONFIG), ""].join("\n");
 
   document.getElementById("replyEmail").value =
-    "mailto:" + email +
-    "?subject=" + encodeURIComponent("Great to meet you") +
+    "mailto:" + email + "?subject=" + encodeURIComponent("Great to meet you") +
     "&body=" + encodeURIComponent(replyBody);
-
   const theirPhone = form.phone.value.trim().replace(/[^\d+]/g, "");
-  document.getElementById("replyText").value = theirPhone
-    ? "sms:" + theirPhone + "?body=" + encodeURIComponent(replyBody)
-    : "";
+  document.getElementById("replyText").value =
+    theirPhone ? "sms:" + theirPhone + "?body=" + encodeURIComponent(replyBody) : "";
 
   sendBtn.disabled = true;
   sendBtn.textContent = "Sending…";
 
-  if (!CONFIG.endpoint) {
+  if (!CONFIG.endpoint){
     console.log("TEST MODE — would have sent:", Object.fromEntries(new FormData(form)));
-    return succeed("Test mode — nothing was sent. Set CONFIG.endpoint to go live.");
+    return succeed("Test mode — nothing was sent. Set an endpoint in edit.html.");
   }
 
   try {
     const response = await fetch(CONFIG.endpoint, {
       method:"POST",
-      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      headers:{"Content-Type":"application/json", "Accept":"application/json"},
       body:JSON.stringify(Object.fromEntries(new FormData(form)))
     });
     if (!response.ok) throw new Error("HTTP " + response.status);
     succeed();
-  } catch (e) {
-    // Never strand someone mid-exchange: hand them their own mail app,
-    // already filled in with everything they just typed.
+  } catch (e){
+    // The relay is the only third-party thing here, so never let it strand
+    // someone: hand them their own mail app, already filled in.
     const body = "Name: " + name + "\nEmail: " + email +
                  "\nPhone: " + form.phone.value + "\nCompany: " + form.company.value +
                  "\n\n" + form.note.value;
@@ -410,6 +359,24 @@ form.addEventListener("submit", async (event) => {
          "&body=" + encodeURIComponent(body) + '">Email it instead</a>.');
   }
 });
+
+// Live preview: edit.html posts a config in and the page redraws.
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.nfcConfig){
+    CONFIG = Object.assign({}, DEFAULTS, event.data.nfcConfig);
+    render();
+  }
+});
+
+(async () => {
+  try {
+    const response = await fetch("config.json", {cache:"no-store"});
+    if (response.ok) CONFIG = Object.assign({}, DEFAULTS, await response.json());
+  } catch (e){
+    console.warn("config.json not loaded, using defaults", e);
+  }
+  render();
+})();
 </script>
 </body>
 </html>

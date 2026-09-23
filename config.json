@@ -1,0 +1,25 @@
+{
+  "name": "Douglas",
+  "role": "CEO",
+  "company": "ProtoMatter Labs",
+  "email": "automatolabs@gmail.com",
+  "phone": "",
+  "site": "https://automatolabs.com",
+  "links": [],
+
+  "endpoint": "",
+
+  "emailSubject": "Nice meeting you",
+  "emailBody": "Name:\nEmail:\nPhone:\n",
+  "smsBody": "",
+
+  "autoResponse": "Thanks for the details — good to meet you.\n\nHere are mine:\n{{name}}\n{{role}} at {{company}}\n{{email}}\n{{site}}\n\nI'll follow up properly shortly.",
+
+  "formTitle": "Send me your details",
+  "formSub": "your phone fills it in — one tap",
+  "showForm": true,
+  "askPhone": true,
+  "askCompany": true,
+  "askNote": true,
+  "noteLabel": "What are you working on?"
+}

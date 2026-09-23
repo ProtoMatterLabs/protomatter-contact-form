@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit my contact page</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --bg:#101014; --panel:#1a1a20; --line:#2c2c36; --ink:#f2f2f6;
+    --dim:#9494a2; --accent:#d62828; --ok:#2e9e5b; --r:12px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  header{padding:18px 22px; border-bottom:1px solid var(--line)}
+  header h1{margin:0; font-size:19px}
+  header p{margin:4px 0 0; color:var(--dim); font-size:13px}
+
+  .cols{display:flex; gap:22px; padding:22px; align-items:flex-start; flex-wrap:wrap}
+  .editor{flex:1 1 440px; min-width:320px}
+  .preview{flex:0 0 400px}
+
+  fieldset{
+    border:1px solid var(--line); border-radius:var(--r);
+    padding:14px 16px 18px; margin:0 0 16px;
+  }
+  legend{padding:0 6px; color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.06em}
+  label{display:block; font-size:12.5px; color:var(--dim); margin:12px 0 5px}
+  label:first-of-type{margin-top:0}
+  input[type=text],input[type=email],input[type=tel],input[type=url],textarea,select{
+    width:100%; padding:10px 11px; font:inherit; font-size:14px;
+    color:var(--ink); background:#0c0c10;
+    border:1px solid var(--line); border-radius:9px;
+  }
+  textarea{min-height:76px; resize:vertical; font-family:Consolas,monospace; font-size:13px}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
+  .row{display:flex; gap:10px}
+  .row>*{flex:1}
+  .check{display:flex; align-items:center; gap:8px; margin:10px 0 0; color:var(--ink); font-size:14px}
+  .check input{width:16px;height:16px}
+  .note{color:var(--dim); font-size:12px; margin-top:6px}
+
+  .bar{
+    position:sticky; bottom:0; background:var(--bg);
+    border-top:1px solid var(--line); padding:14px 0 4px;
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+  button{
+    padding:11px 16px; font:inherit; font-size:14px; font-weight:600;
+    border-radius:var(--r); border:1px solid var(--line);
+    background:#24242c; color:var(--ink); cursor:pointer;
+  }
+  button.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  button:active{transform:translateY(1px)}
+  .status{color:var(--ok); font-size:13px}
+
+  iframe{
+    width:400px; height:720px; border:1px solid var(--line);
+    border-radius:var(--r); background:#fff;
+  }
+  .preview h3{margin:0 0 8px; font-size:13px; color:var(--dim);
+              text-transform:uppercase; letter-spacing:.06em}
+  details{margin-top:14px}
+  summary{cursor:pointer; color:var(--dim); font-size:13px}
+  pre{
+    background:#0c0c10; border:1px solid var(--line); border-radius:9px;
+    padding:12px; overflow:auto; font-size:12px; max-height:260px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Edit my contact page</h1>
+  <p>Change anything, watch the preview, then save <code>config.json</code> and put it
+     next to <code>index.html</code>. No server involved &mdash; the page reads that file.</p>
+</header>
+
+<div class="cols">
+
+  <div class="editor">
+
+    <fieldset>
+      <legend>Who you are</legend>
+      <div class="row">
+        <div><label for="name">Name</label><input id="name" type="text"></div>
+        <div><label for="role">Role</label><input id="role" type="text" placeholder="CEO"></div>
+      </div>
+      <label for="company">Company</label><input id="company" type="text">
+      <div class="row">
+        <div><label for="email">Email</label><input id="email" type="email"></div>
+        <div><label for="phone">Phone</label><input id="phone" type="tel" placeholder="+15555551234"></div>
+      </div>
+      <p class="note">Phone is optional. Leave it blank and the Text&nbsp;me and
+         Call&nbsp;me actions simply do not appear.</p>
+      <label for="site">Website</label><input id="site" type="url">
+    </fieldset>
+
+    <fieldset>
+      <legend>Email action</legend>
+      <label for="emailSubject">Subject they will send</label>
+      <input id="emailSubject" type="text">
+      <p class="note">Worth keeping distinctive: it is what a Gmail filter can match
+         on if you want an automatic reply.</p>
+      <label for="emailBody">Body they will send</label>
+      <textarea id="emailBody"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Text action</legend>
+      <label for="smsBody">Message they will send</label>
+      <textarea id="smsBody" placeholder="Leave blank to generate one from your details."></textarea>
+      <p class="note">The text is what <em>they</em> send, so putting your details in it
+         means you land in their message history. Only shown when a phone number is set.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Their details form</legend>
+      <div class="check"><input id="showForm" type="checkbox"><label for="showForm" style="margin:0">Show the form</label></div>
+      <div class="row" style="margin-top:12px">
+        <div><label for="formTitle">Button title</label><input id="formTitle" type="text"></div>
+        <div><label for="formSub">Button subtitle</label><input id="formSub" type="text"></div>
+      </div>
+      <div class="check"><input id="askPhone" type="checkbox"><label for="askPhone" style="margin:0">Ask for phone</label></div>
+      <div class="check"><input id="askCompany" type="checkbox"><label for="askCompany" style="margin:0">Ask for company</label></div>
+      <div class="check"><input id="askNote" type="checkbox"><label for="askNote" style="margin:0">Ask an open question</label></div>
+      <label for="noteLabel">The question</label><input id="noteLabel" type="text">
+      <p class="note">Every field you add costs completions. Name and email are the
+         two that matter.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Where the form posts</legend>
+      <label for="endpoint">Endpoint</label>
+      <input id="endpoint" type="url" placeholder="https://formsubmit.co/ajax/your@email.com">
+      <p class="note">
+        Blank is test mode: the form validates and shows the success screen without
+        sending. To go live, put your address in, submit once, click the confirmation
+        email, then swap your address for the alias it gives you so it is not sitting
+        in the page source.<br><br>
+        If the relay is ever unreachable the page falls back to opening the visitor's
+        own mail app, prefilled &mdash; so a submission is never simply lost.
+      </p>
+      <label for="autoResponse">Automatic reply sent back to them</label>
+      <textarea id="autoResponse"></textarea>
+      <p class="note">Placeholders: <code>{{name}}</code> <code>{{role}}</code>
+         <code>{{company}}</code> <code>{{email}}</code> <code>{{site}}</code></p>
+    </fieldset>
+
+    <div class="bar">
+      <button class="primary" id="download">Save config.json</button>
+      <button id="copy">Copy JSON</button>
+      <button id="load">Load a config.json…</button>
+      <button id="reset">Reload current</button>
+      <span class="status" id="status"></span>
+      <input id="file" type="file" accept=".json,application/json" style="display:none">
+    </div>
+
+    <details>
+      <summary>Show the JSON</summary>
+      <pre id="json"></pre>
+    </details>
+  </div>
+
+  <div class="preview">
+    <h3>Live preview</h3>
+    <iframe id="frame" src="index.html?c=preview" title="preview"></iframe>
+    <p class="note">This is the real page, redrawing as you type.</p>
+  </div>
+
+</div>
+
+<script>
+const FIELDS = ["name","role","company","email","phone","site","emailSubject",
+                "emailBody","smsBody","endpoint","autoResponse","formTitle",
+                "formSub","noteLabel"];
+const FLAGS = ["showForm","askPhone","askCompany","askNote"];
+
+const frame = document.getElementById("frame");
+const statusEl = document.getElementById("status");
+let ready = false;
+
+function collect(){
+  const out = {links: []};
+  FIELDS.forEach(k => out[k] = document.getElementById(k).value);
+  FLAGS.forEach(k => out[k] = document.getElementById(k).checked);
+  return out;
+}
+
+function apply(config){
+  FIELDS.forEach(k => { if (k in config) document.getElementById(k).value = config[k] || ""; });
+  FLAGS.forEach(k => { document.getElementById(k).checked = config[k] !== false; });
+  push();
+}
+
+function push(){
+  const config = collect();
+  document.getElementById("json").textContent = JSON.stringify(config, null, 2);
+  if (ready) frame.contentWindow.postMessage({nfcConfig: config}, "*");
+}
+
+function say(message){
+  statusEl.textContent = message;
+  setTimeout(() => { if (statusEl.textContent === message) statusEl.textContent = ""; }, 4000);
+}
+
+FIELDS.concat(FLAGS).forEach(k => {
+  const el = document.getElementById(k);
+  el.addEventListener("input", push);
+  el.addEventListener("change", push);
+});
+
+frame.addEventListener("load", () => { ready = true; push(); });
+
+document.getElementById("download").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(collect(), null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "config.json";
+  a.click();
+  say("Saved — put it next to index.html.");
+});
+
+document.getElementById("copy").addEventListener("click", async () => {
+  await navigator.clipboard.writeText(JSON.stringify(collect(), null, 2));
+  say("Copied.");
+});
+
+document.getElementById("load").addEventListener("click", () => document.getElementById("file").click());
+document.getElementById("file").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try { apply(JSON.parse(reader.result)); say("Loaded."); }
+    catch (e){ say("That file is not valid JSON."); }
+  };
+  reader.readAsText(file);
+});
+
+async function loadCurrent(){
+  try {
+    const response = await fetch("config.json", {cache:"no-store"});
+    if (response.ok) { apply(await response.json()); return; }
+  } catch (e){ /* first run, or opened from disk */ }
+  apply({});
+}
+document.getElementById("reset").addEventListener("click", () => { loadCurrent(); say("Reloaded."); });
+
+loadCurrent();
+</script>
+</body>
+</html>
