@@ -149,6 +149,10 @@
   <div class="editor">
     <fieldset>
       <legend>Profile <span id="whichId"></span></legend>
+      <div class="bar" style="margin:0 0 12px">
+        <button class="primary" id="openTheirEdit">Edit their profile</button>
+        <button id="openLive">View their card</button>
+      </div>
       <div class="row">
         <div>
           <label for="cardId">Card ID (appears in the link and every email)</label>
@@ -160,10 +164,6 @@
         </div>
       </div>
       <p class="note" id="idNote"></p>
-      <div class="bar" style="margin:8px 0 2px">
-        <button id="openLive">Open their card</button>
-        <button id="openTheirEdit">Open their editor</button>
-      </div>
 
       <div class="row">
         <div><label for="name">Name</label><input id="name" type="text"></div>
@@ -215,6 +215,9 @@
       <div class="bar">
         <button class="primary full" id="save">Download profiles.json</button>
       </div>
+      <p class="note" id="dirtyInline" style="display:none; color:#e8cf7a; margin-top:8px">
+        You have changes that are not in the file yet.
+      </p>
       <div class="bar">
         <button id="mergeOne">Paste someone's details</button>
         <button id="load">Load a file</button>
@@ -309,6 +312,8 @@ function dirty(state){
   unsaved = state;
   const flag = document.getElementById("dirtyFlag");
   if (flag) flag.style.display = state ? "inline" : "none";
+  const inline = document.getElementById("dirtyInline");
+  if (inline) inline.style.display = state ? "block" : "none";
 }
 window.addEventListener("beforeunload", (event) => {
   if (!unsaved) return;
