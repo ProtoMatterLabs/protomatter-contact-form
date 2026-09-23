@@ -204,6 +204,20 @@
       <p class="note">A colour goes straight in; anything else is treated as an
          image covering the page. Leave blank for the default.</p>
 
+      <div id="photoTools" style="display:none; margin-bottom:12px">
+        <label style="margin-top:0">Photo</label>
+        <div style="display:flex; gap:10px; align-items:center">
+          <img id="photoThumb" alt="" style="width:46px;height:46px;border-radius:50%;
+               object-fit:cover;border:1px solid var(--line)">
+          <div style="flex:1">
+            <div class="bar">
+              <button id="photoToFile">Save as a file and link it</button>
+            </div>
+            <p class="note" id="photoSize" style="margin-top:6px"></p>
+          </div>
+        </div>
+      </div>
+
       <label for="pageTitle">Browser tab / history title</label>
       <input id="pageTitle" type="text" placeholder="leave blank to use the shared pattern">
       <p class="note" id="titlePreview"></p>
@@ -514,6 +528,7 @@ function edit(id){
   document.getElementById("whichId").textContent = "— " + id;
   drawInherited();
   drawTitlePreview();
+  refreshPhotoTools();
   drawList();
   pushPreview();
 }
@@ -666,6 +681,50 @@ function requireCurrent(){
 /* The id is what ties a physical card to a person: it is in the link, in the
    QR, and in every submission. Copy it on its own so it can be pasted into the
    NFC Card Studio, which rebuilds the same link from the page URL plus the id. */
+/* A photo arrives embedded in the profile, which is fine for a few and wasteful
+   for many: every visitor to every card downloads the whole file. This turns one
+   back into a real image to commit, and points the profile at its path instead. */
+function photoBytes(dataUri){
+  const comma = dataUri.indexOf(",");
+  if (comma === -1) return null;
+  const binary = atob(dataUri.slice(comma + 1));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function refreshPhotoTools(){
+  const tools = document.getElementById("photoTools");
+  if (!current) { tools.style.display = "none"; return; }
+  const photo = (profiles[current] || {}).photo || "";
+  const embedded = photo.indexOf("data:") === 0;
+  tools.style.display = photo ? "block" : "none";
+  if (!photo) return;
+  document.getElementById("photoThumb").src = photo;
+  const button = document.getElementById("photoToFile");
+  button.style.display = embedded ? "" : "none";
+  document.getElementById("photoSize").textContent = embedded
+    ? Math.round(photo.length * 0.75 / 1024) + " KB embedded in profiles.json"
+    : "linked to " + photo;
+}
+
+document.getElementById("photoToFile").addEventListener("click", () => {
+  const photo = (profiles[current] || {}).photo || "";
+  if (photo.indexOf("data:") !== 0) return say("That photo is already a file.");
+  const bytes = photoBytes(photo);
+  if (!bytes) return say("Could not read that photo.");
+  const ext = photo.indexOf("image/png") !== -1 ? "png" : "jpg";
+  const name = current + "." + ext;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([bytes], {type:"image/" + ext}));
+  a.download = name;
+  a.click();
+  profiles[current].photo = "img/" + name;
+  edit(current);
+  dirty(true);
+  say("Saved " + name + " - put it in an img/ folder and commit it.");
+});
+
 document.getElementById("copyId").addEventListener("click", async () => {
   const id = requireCurrent();
   if (!id) return;

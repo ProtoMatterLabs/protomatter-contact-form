@@ -122,14 +122,15 @@
     <div id="sections"></div>
 
     <div class="saveWrap">
-      <button class="primary big" id="saveBtn">Save my changes</button>
+      <button class="primary big" id="sendBtn">Save and send my changes</button>
       <div class="bar" style="margin-top:10px">
+        <button id="saveBtn">Save without sending</button>
         <button id="downloadBtn">Download a copy</button>
         <button id="revertBtn">Undo all my changes</button>
       </div>
       <p class="note" id="saveNote">
-        Saving keeps your work in this browser and copies it. To put it on the real
-        card, send the copied text to whoever set your card up.
+        Sending submits your card straight to whoever set it up &mdash; photo included.
+        Nothing to copy, paste or attach.
       </p>
     </div>
 
@@ -578,6 +579,45 @@ function payload(){
 function bundle(){
   return PERSONAL ? {profiles: {[cardId]: payload()}} : payload();
 }
+
+/* A photo is ~16,000 characters of base64, which is far past what any mail
+   client will carry in a mailto: link - so the submission goes over the same
+   relay the card's contact form already uses, where a POST body has no such
+   limit. No extra service, nothing for them to attach. */
+document.getElementById("sendBtn").addEventListener("click", async () => {
+  const text = JSON.stringify(bundle(), null, 2);
+  try { localStorage.setItem(DRAFT_KEY, text); } catch (e){ /* private window */ }
+
+  const endpoint = shared.endpoint;
+  if (!endpoint){
+    setStatus(false, "— saved here, but sending is not set up yet");
+    return;
+  }
+
+  const who = (document.getElementById("name") || {}).value || cardId;
+  setStatus(true, "— sending…");
+  try {
+    const response = await fetch(endpoint, {
+      method:"POST",
+      headers:{"Content-Type":"application/json", "Accept":"application/json"},
+      body:JSON.stringify({
+        name: who,
+        _subject: "Card update: " + (cardId || "shared"),
+        _template: "box",
+        card: cardId,
+        profile_json: text
+      })
+    });
+    let answer = null;
+    try { answer = await response.json(); } catch (e){ /* not JSON */ }
+    if (!response.ok || (answer && String(answer.success) === "false"))
+      throw new Error((answer && answer.message) || ("HTTP " + response.status));
+    setStatus(false, "— sent. Your card updates once it is published.");
+  } catch (e){
+    setStatus(false, "— could not send (" + e.message
+      + "). Use Download a copy and send the file instead.");
+  }
+});
 
 document.getElementById("saveBtn").addEventListener("click", async () => {
   const text = JSON.stringify(bundle(), null, 2);
