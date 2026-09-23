@@ -153,6 +153,9 @@
       <input type="hidden" name="_template" value="table">
       <!-- Mailed straight back to whoever submitted, automatically. -->
       <input type="hidden" name="_autoresponse" id="autoField" value="">
+      <!-- Copies to a second address. With one central endpoint this is how
+           the individual whose card it is also gets the submission. -->
+      <input type="hidden" name="_cc" id="ccField" value="">
       <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
       <input type="hidden" name="card" id="cardField" value="">
       <!-- Filled at submit time, once their address is known. These arrive in
@@ -187,6 +190,8 @@ const DEFAULTS = {
   emailBody:"Name:\nEmail:\nPhone:\n",
   smsBody:"",
   autoResponse:"",
+  cc:"",          // extra address copied on every submission
+  ccOwner:true,   // also copy this profile's own email
   formTitle:"Send me your details",
   formSub:"your phone fills it in — one tap",
   showForm:true, askPhone:true, askCompany:true, askNote:true,
@@ -235,6 +240,14 @@ function render(){
     .replace(/{{name}}/g, c.name).replace(/{{role}}/g, c.role)
     .replace(/{{company}}/g, c.company).replace(/{{email}}/g, c.email)
     .replace(/{{site}}/g, c.site);
+
+  // One activated endpoint, many people: the submission lands centrally and
+  // is copied to whoever's card it actually was.
+  const copies = [];
+  if (c.cc) copies.push(c.cc);
+  if (c.ccOwner && c.email) copies.push(c.email);
+  document.getElementById("ccField").value =
+    Array.from(new Set(copies.filter(Boolean))).join(",");
 
   if (cardId){
     document.getElementById("cardField").value = cardId;

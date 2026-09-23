@@ -17,5 +17,7 @@
   "askPhone": true,
   "askCompany": true,
   "askNote": true,
-  "noteLabel": "What are you working on?"
+  "noteLabel": "What are you working on?",
+  "cc": "",
+  "ccOwner": true
 }
