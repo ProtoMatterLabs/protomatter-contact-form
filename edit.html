@@ -77,10 +77,6 @@
   .sw{width:26px; height:26px; border-radius:50%; border:2px solid transparent;
       cursor:pointer; padding:0}
   .sw.on{border-color:var(--ink)}
-  .avatarPrev{width:56px;height:56px;border-radius:50%;overflow:hidden;
-              background:var(--accent);color:#fff;display:grid;place-items:center;
-              font-weight:700;font-size:20px;flex:0 0 auto}
-  .avatarPrev img{width:100%;height:100%;object-fit:cover}
 
   button{padding:10px 15px; font:inherit; font-size:14px; font-weight:600;
          border-radius:var(--r); border:1px solid var(--line);
@@ -98,6 +94,22 @@
   details.json summary{cursor:pointer; color:var(--dim); font-size:13px}
   pre{background:#0c0c10; border:1px solid var(--line); border-radius:9px;
       padding:12px; overflow:auto; font-size:12px; max-height:240px}
+  .dropzone{border:2px dashed var(--line); border-radius:var(--r); padding:18px;
+            text-align:center; color:var(--dim); font-size:13.5px; cursor:pointer;
+            transition:border-color .12s, background .12s}
+  .dropzone.over{border-color:var(--accent); background:#1c1620; color:var(--ink)}
+  .cropWrap{display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap}
+  #cropCanvas{border-radius:var(--r); background:#0c0c10; cursor:grab; touch-action:none}
+  #cropCanvas:active{cursor:grabbing}
+  .cropSide{flex:1; min-width:180px}
+  .avatarNow{width:64px;height:64px;border-radius:50%;overflow:hidden;
+             background:var(--accent);color:#fff;display:grid;place-items:center;
+             font-weight:700;font-size:22px;flex:0 0 auto}
+  .avatarNow img{width:100%;height:100%;object-fit:cover}
+  .approve{background:#15251c; border:1px solid #2e6b46; color:#bfe8d0;
+           padding:12px 14px; border-radius:var(--r); font-size:13px; margin-top:12px;
+           display:none}
+  .approve code{background:#0c1a12; padding:2px 6px; border-radius:5px; color:#9fe0bb}
   .saveWrap{margin-top:18px; padding-top:16px; border-top:1px solid var(--line)}
 </style>
 </head>
@@ -114,6 +126,44 @@
   <div class="editor">
 
     <fieldset>
+      <legend>My photo</legend>
+      <div class="cropWrap">
+        <div class="avatarNow" id="avatarNow"></div>
+        <div class="cropSide">
+          <div class="dropzone" id="dropzone">
+            Drop a photo here, or click to choose one
+          </div>
+          <input id="photoFile" type="file" accept="image/*" style="display:none">
+          <p class="note" id="photoNote">
+            Square, 256 pixels, about 12&nbsp;KB. Nothing to host.
+          </p>
+        </div>
+      </div>
+
+      <div id="cropUI" style="display:none; margin-top:14px">
+        <div class="cropWrap">
+          <canvas id="cropCanvas" width="260" height="260"></canvas>
+          <div class="cropSide">
+            <label for="cropZoom" style="margin-top:0">Zoom</label>
+            <input id="cropZoom" type="range" min="1" max="4" step="0.01" value="1">
+            <p class="note">Drag the picture to move it. Whatever is inside the
+               circle is what people see.</p>
+            <div class="bar" style="margin-top:10px">
+              <button class="primary" id="cropUse">Use this photo</button>
+              <button id="cropCancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <input id="photo" type="text" placeholder="or paste an image link"
+             style="margin-top:12px">
+      <div class="bar" style="margin-top:8px">
+        <button id="clearPhoto">Remove my photo</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>What appears on my card</legend>
       <div class="checklist" id="checklist"></div>
       <p class="note">Unticked sections are hidden from your card and greyed out below.</p>
@@ -122,16 +172,16 @@
     <div id="sections"></div>
 
     <div class="saveWrap">
-      <button class="primary big" id="sendBtn">Save and send my changes</button>
+      <button class="primary big" id="sendBtn">Send my details for approval</button>
       <div class="bar" style="margin-top:10px">
         <button id="saveBtn">Save without sending</button>
         <button id="downloadBtn">Download a copy</button>
         <button id="revertBtn">Undo all my changes</button>
       </div>
       <p class="note" id="saveNote">
-        Sending submits your card straight to whoever set it up &mdash; photo included.
-        Nothing to copy, paste or attach.
+        Your details go for approval &mdash; photo included. Nothing to copy or attach.
       </p>
+      <div class="approve" id="approveBox"></div>
     </div>
 
     <details class="json">
@@ -364,15 +414,7 @@ panels.look.body.innerHTML =
     '<input id="accent" type="text" placeholder="#d62828" style="flex:1">' +
     '<input id="accentPick" type="color" style="width:46px; padding:2px; height:38px">' +
   '</div><div class="swatches" id="swatches"></div>' +
-  '<label style="margin-top:14px">Photo</label>' +
-  '<div style="display:flex; gap:12px; align-items:center">' +
-    '<div class="avatarPrev" id="avatarPrev"></div>' +
-    '<div style="flex:1"><input id="photo" type="text" placeholder="paste an image link, or pick a file">' +
-    '<div class="bar" style="margin-top:6px"><button id="pickPhoto">Choose a file…</button>' +
-    '<button id="clearPhoto">Remove</button></div></div></div>' +
-  '<input id="photoFile" type="file" accept="image/*" style="display:none">' +
-  '<p class="note" id="photoNote">A file is shrunk to a small square and stored with ' +
-  'your card, so there is nothing to host.</p>';
+  '<p class="note">Your photo is at the top of this page.</p>';
 
 const PALETTE = ["#d62828","#1f6feb","#2e9e5b","#7a2fd6","#e07b00",
                  "#0e7490","#c2185b","#334155"];
@@ -402,7 +444,7 @@ document.getElementById("accent").addEventListener("input", e => {
 });
 
 function drawAvatarPreview(){
-  const box = document.getElementById("avatarPrev");
+  const box = document.getElementById("avatarNow");
   const photo = (document.getElementById("photo").value || "").trim();
   const nameEl = document.getElementById("name");
   const name = (nameEl && nameEl.value || "").trim();
@@ -420,45 +462,161 @@ function drawAvatarPreview(){
   }
 }
 
-document.getElementById("pickPhoto").addEventListener("click", () =>
-  document.getElementById("photoFile").click());
-document.getElementById("clearPhoto").addEventListener("click", () => {
-  document.getElementById("photo").value = "";
-  drawAvatarPreview();
-  push();
+
+
+
+/* ---------------------------------------------------------------- avatar
+
+   Drop or pick a photo, frame it, and it becomes a 256px square. A phone
+   photo is several megabytes and every visitor to every card downloads the
+   same file, so the export size is fixed rather than left to chance. */
+
+const VIEW = 260, OUT = 256;
+const cropCanvas = document.getElementById("cropCanvas");
+const cropUI = document.getElementById("cropUI");
+const dropzone = document.getElementById("dropzone");
+const zoomInput = document.getElementById("cropZoom");
+const crop = {img:null, scale:1, x:0, y:0, from:null};
+
+function cropDraw(){
+  const ctx = cropCanvas.getContext("2d");
+  ctx.clearRect(0, 0, VIEW, VIEW);
+  ctx.fillStyle = "#0c0c10";
+  ctx.fillRect(0, 0, VIEW, VIEW);
+  if (crop.img){
+    ctx.drawImage(crop.img, crop.x, crop.y,
+                  crop.img.width * crop.scale, crop.img.height * crop.scale);
+  }
+  // Dim everything outside the circle so the framing is obvious.
+  ctx.save();
+  ctx.fillStyle = "rgba(14,14,18,.72)";
+  ctx.beginPath();
+  ctx.rect(0, 0, VIEW, VIEW);
+  ctx.arc(VIEW/2, VIEW/2, VIEW/2 - 6, 0, Math.PI * 2, true);
+  ctx.fill("evenodd");
+  ctx.restore();
+  ctx.strokeStyle = "rgba(255,255,255,.45)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(VIEW/2, VIEW/2, VIEW/2 - 6, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function cropOpen(img){
+  crop.img = img;
+  // Start at "cover": the smaller side fills the frame, nothing is letterboxed.
+  crop.scale = Math.max(VIEW / img.width, VIEW / img.height);
+  crop.x = (VIEW - img.width * crop.scale) / 2;
+  crop.y = (VIEW - img.height * crop.scale) / 2;
+  zoomInput.min = crop.scale.toFixed(3);
+  zoomInput.max = (crop.scale * 4).toFixed(3);
+  zoomInput.step = (crop.scale / 100).toFixed(4);
+  zoomInput.value = crop.scale;
+  cropUI.style.display = "block";
+  cropDraw();
+}
+
+function cropClamp(){
+  const w = crop.img.width * crop.scale, h = crop.img.height * crop.scale;
+  crop.x = Math.min(0, Math.max(VIEW - w, crop.x));
+  crop.y = Math.min(0, Math.max(VIEW - h, crop.y));
+}
+
+zoomInput.addEventListener("input", () => {
+  if (!crop.img) return;
+  const next = parseFloat(zoomInput.value);
+  // Zoom about the centre, so the framed part stays framed.
+  const cx = (VIEW/2 - crop.x) / crop.scale, cy = (VIEW/2 - crop.y) / crop.scale;
+  crop.scale = next;
+  crop.x = VIEW/2 - cx * next;
+  crop.y = VIEW/2 - cy * next;
+  cropClamp();
+  cropDraw();
 });
-document.getElementById("photo").addEventListener("input", () => {
+
+cropCanvas.addEventListener("pointerdown", (e) => {
+  if (!crop.img) return;
+  crop.from = {x:e.clientX - crop.x, y:e.clientY - crop.y};
+  cropCanvas.setPointerCapture(e.pointerId);
+});
+cropCanvas.addEventListener("pointermove", (e) => {
+  if (!crop.from) return;
+  crop.x = e.clientX - crop.from.x;
+  crop.y = e.clientY - crop.from.y;
+  cropClamp();
+  cropDraw();
+});
+cropCanvas.addEventListener("pointerup", () => { crop.from = null; });
+cropCanvas.addEventListener("pointercancel", () => { crop.from = null; });
+
+function cropLoadFile(file){
+  if (!file || file.type.indexOf("image/") !== 0)
+    return say("\u2014 that file is not an image");
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => cropOpen(img);
+    img.onerror = () => say("\u2014 that image could not be read");
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+const photoFile = document.getElementById("photoFile");
+dropzone.addEventListener("click", () => photoFile.click());
+photoFile.addEventListener("change", (e) => {
+  cropLoadFile(e.target.files[0]);
+  photoFile.value = "";           // so the same file can be picked twice
+});
+["dragenter","dragover"].forEach(type =>
+  dropzone.addEventListener(type, (e) => {
+    e.preventDefault();
+    dropzone.classList.add("over");
+  }));
+["dragleave","drop"].forEach(type =>
+  dropzone.addEventListener(type, (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("over");
+  }));
+dropzone.addEventListener("drop", (e) => {
+  const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  cropLoadFile(file);
+});
+
+document.getElementById("cropUse").addEventListener("click", () => {
+  if (!crop.img) return;
+  const out = document.createElement("canvas");
+  out.width = out.height = OUT;
+  const ctx = out.getContext("2d");
+  const k = OUT / VIEW;                       // same framing, higher resolution
+  ctx.drawImage(crop.img, crop.x * k, crop.y * k,
+                crop.img.width * crop.scale * k, crop.img.height * crop.scale * k);
+  const data = out.toDataURL("image/jpeg", 0.82);
+  document.getElementById("photo").value = data;
+  document.getElementById("photoNote").textContent =
+    "Square, 256 pixels, about " + Math.round(data.length * 0.75 / 1024) + " KB.";
+  cropUI.style.display = "none";
+  crop.img = null;
   drawAvatarPreview();
   push();
 });
 
-/* Shrink before storing. A phone photo is several megabytes, and every visitor
-   to every card downloads the same file, so 256px square is the ceiling. */
-document.getElementById("photoFile").addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const img = new Image();
-    img.onload = () => {
-      const size = 256;
-      const canvas = document.createElement("canvas");
-      canvas.width = canvas.height = size;
-      const ctx = canvas.getContext("2d");
-      const side = Math.min(img.width, img.height);       // centre crop to square
-      ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2,
-                    side, side, 0, 0, size, size);
-      const data = canvas.toDataURL("image/jpeg", 0.82);
-      document.getElementById("photo").value = data;
-      document.getElementById("photoNote").textContent =
-        "Stored at 256px, about " + Math.round(data.length * 0.75 / 1024) + " KB.";
-      drawAvatarPreview();
-      push();
-    };
-    img.onerror = () => say("— that file is not an image this browser can read");
-    img.src = reader.result;
-  };
-  reader.readAsDataURL(file);
+document.getElementById("cropCancel").addEventListener("click", () => {
+  cropUI.style.display = "none";
+  crop.img = null;
+});
+
+document.getElementById("clearPhoto").addEventListener("click", () => {
+  document.getElementById("photo").value = "";
+  document.getElementById("photoNote").textContent =
+    "Square, 256 pixels, about 12 KB. Nothing to host.";
+  drawAvatarPreview();
+  push();
+});
+
+document.getElementById("photo").addEventListener("input", () => {
+  drawAvatarPreview();
+  push();
 });
 
 // -------------------------------------------------------------- data in/out
@@ -573,7 +731,34 @@ function download(name, text, type){
 function payload(){
   if (!PERSONAL) return collect();
   // Merge over what is stored, so settings not shown here survive the trip.
-  return Object.assign({}, profiles[cardId] || {}, collect());
+  const merged = Object.assign({}, profiles[cardId] || {}, collect());
+  // Version so a submission can be told apart from the one already published,
+  // and two people editing the same card cannot silently overwrite each other.
+  const published = Number((profiles[cardId] || {}).version) || 0;
+  merged.version = published + 1;
+  merged.submittedAt = new Date().toISOString().slice(0, 19).replace("T", " ");
+  return merged;
+}
+
+/* Who to chase, and the reassurance that nothing is lost. Both come from the
+   shared settings, so the person editing never has to be told where to look. */
+function showApproval(version){
+  const box = document.getElementById("approveBox");
+  const who = shared.approverName || "whoever looks after the cards";
+  const mail = (shared.approverEmail || "").trim();
+  const wait = shared.approvalNote
+    || "It may take a little while to go live — that is normal, and nothing is lost.";
+  box.innerHTML =
+    "<b>Sent to " + who + " for approval (version " + version + ").</b><br>" + wait +
+    (mail ? "<br>Need it sooner? Email <code id=\"approveMail\">" + mail +
+            "</code> <button id=\"copyApprove\" style=\"padding:4px 9px;font-size:12px\">copy</button>"
+          : "");
+  box.style.display = "block";
+  const copy = document.getElementById("copyApprove");
+  if (copy) copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(mail); copy.textContent = "copied"; }
+    catch (e){ copy.textContent = "select it manually"; }
+  });
 }
 
 function bundle(){
@@ -585,7 +770,9 @@ function bundle(){
    relay the card's contact form already uses, where a POST body has no such
    limit. No extra service, nothing for them to attach. */
 document.getElementById("sendBtn").addEventListener("click", async () => {
-  const text = JSON.stringify(bundle(), null, 2);
+  const sent = payload();
+  const version = sent.version || 1;
+  const text = JSON.stringify(PERSONAL ? {profiles:{[cardId]: sent}} : sent, null, 2);
   try { localStorage.setItem(DRAFT_KEY, text); } catch (e){ /* private window */ }
 
   const endpoint = shared.endpoint;
@@ -602,9 +789,11 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
       headers:{"Content-Type":"application/json", "Accept":"application/json"},
       body:JSON.stringify({
         name: who,
-        _subject: "Card update: " + (cardId || "shared"),
+        _subject: "Card update v" + version + ": " + (cardId || "shared"),
         _template: "box",
         card: cardId,
+        version: version,
+        submitted: sent.submittedAt,
         profile_json: text
       })
     });
@@ -612,7 +801,8 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     try { answer = await response.json(); } catch (e){ /* not JSON */ }
     if (!response.ok || (answer && String(answer.success) === "false"))
       throw new Error((answer && answer.message) || ("HTTP " + response.status));
-    setStatus(false, "— sent. Your card updates once it is published.");
+    setStatus(false, "— sent for approval (version " + version + ")");
+    showApproval(version);
   } catch (e){
     setStatus(false, "— could not send (" + e.message
       + "). Use Download a copy and send the file instead.");

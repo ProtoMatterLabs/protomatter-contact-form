@@ -291,6 +291,24 @@
 <div class="invite" id="tab-invite" style="display:none">
 
   <div class="group">
+    <h4>Who approves updates (everyone sees this)</h4>
+    <div class="row">
+      <div><label for="approverName">Name</label>
+        <input id="approverName" type="text" placeholder="Douglas"></div>
+      <div><label for="approverEmail">Email they can chase</label>
+        <input id="approverEmail" type="email" placeholder="you@example.com"></div>
+    </div>
+    <label for="approvalNote">What they are told after sending</label>
+    <textarea id="approvalNote" style="min-height:60px"></textarea>
+    <div class="bar" style="margin-top:8px">
+      <button class="primary" id="saveShared">Download config.json</button>
+    </div>
+    <p class="note">Shown on every card editor after someone sends an update, with
+       the email copyable so they know who to chase. Lives in
+       <code>config.json</code>, so it is downloaded separately.</p>
+  </div>
+
+  <div class="group">
     <h4>Who is this for</h4>
     <div class="row">
       <div>
@@ -458,6 +476,7 @@ function drawList(){
 
     const roleCell = document.createElement("td");
     roleCell.textContent = profile.role || "";
+    if (profile.version) roleCell.textContent += "  v" + profile.version;
 
     tr.append(cb, idCell, nameCell, roleCell);
     tr.addEventListener("click", () => edit(id));
@@ -725,6 +744,20 @@ document.getElementById("photoToFile").addEventListener("click", () => {
   say("Saved " + name + " - put it in an img/ folder and commit it.");
 });
 
+/* config.json is a separate file from profiles.json, so it downloads on its
+   own rather than being silently folded into the profile save. */
+const SHARED_FIELDS = ["approverName","approverEmail","approvalNote"];
+document.getElementById("saveShared").addEventListener("click", () => {
+  const merged = Object.assign({}, shared);
+  SHARED_FIELDS.forEach(k => { merged[k] = document.getElementById(k).value; });
+  const a = document.createElement("a");
+  const text = JSON.stringify(merged, null, 2) + String.fromCharCode(10);
+  a.href = URL.createObjectURL(new Blob([text], {type:"application/json"}));
+  a.download = "config.json";
+  a.click();
+  say("Downloaded config.json - commit it next to index.html.");
+});
+
 document.getElementById("copyId").addEventListener("click", async () => {
   const id = requireCurrent();
   if (!id) return;
@@ -973,7 +1006,13 @@ async function loadFromFile(){
   document.getElementById("baseUrl").value = location.href.replace(/[^/]*$/, "");
   try {
     const sharedResponse = await fetch("config.json", {cache:"no-store"});
-    if (sharedResponse.ok) shared = await sharedResponse.json();
+    if (sharedResponse.ok){
+      shared = await sharedResponse.json();
+      ["approverName","approverEmail","approvalNote"].forEach(k => {
+        const el = document.getElementById(k);
+        if (el) el.value = shared[k] || "";
+      });
+    }
   } catch (e){ /* editable without it, just no fallback preview */ }
 
   // A local draft is work in progress and outranks the published file - but say

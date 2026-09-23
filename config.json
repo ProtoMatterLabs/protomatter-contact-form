@@ -24,5 +24,8 @@
   "titleTemplate": "{{name}} — {{company}}",
   "pageTitle": "",
   "allowAccent": true,
-  "background": ""
+  "background": "",
+  "approverName": "Douglas",
+  "approverEmail": "automatolabs@gmail.com",
+  "approvalNote": "Updates are reviewed before they go live, so it may take a little while. Nothing is lost in the meantime."
 }
