@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ProtoMatter — contact</title>
 <meta name="color-scheme" content="dark light">
+<!-- Testing in the open, but not for the open: keep it out of search
+     results. Anyone with the link still gets in; crawlers do not. -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
 <style>
   :root{
     --bg:#0d0d10; --card:#16161b; --line:#292932; --ink:#f3f3f6;
@@ -165,11 +170,20 @@ const CONFIG = {
     // { label:"LinkedIn", sub:"connect", icon:"in", url:"https://linkedin.com/in/..." },
   ],
 
-  // Where the form posts. Empty = test mode: it validates and shows the
-  // success screen without sending anything, so the page can be checked
-  // before any relay is wired up.
-  //   Formspree:  https://formspree.io/f/xxxxxxx
-  //   FormSubmit: https://formsubmit.co/ajax/<alias>
+  // Where the form posts.
+  //
+  // Empty = test mode: validates and shows the success screen without
+  // sending, so the page can be checked before wiring anything up.
+  //
+  // To go live, put your address in directly:
+  //     endpoint: "https://formsubmit.co/ajax/automatolabs@gmail.com"
+  // Submit once, click the confirmation email, then replace the address with
+  // the random alias that email gives you, so it is not sitting in the page
+  // source for scrapers:
+  //     endpoint: "https://formsubmit.co/ajax/abc123def456"
+  //
+  // No account, no dashboard. GitHub/Cloudflare only serve files, so
+  // something has to receive the POST -- that is all this is.
   endpoint: "",
 
   // Mailed straight back to anyone who submits the form, automatically.
