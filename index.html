@@ -198,6 +198,8 @@ const DEFAULTS = {
   cc:"",           // extra address copied on every submission
   ccOwner:true,    // also copy this profile's own email
   ccMode:"bcc",    // "bcc" keeps the copied addresses off the header
+  pageTitle:"",                                  // per-card override
+  titleTemplate:"{{name}} — {{company}}",     // used when no override
   formTitle:"Send me your details",
   formSub:"your phone fills it in — one tap",
   showForm:true, askPhone:true, askCompany:true, askNote:true,
@@ -233,8 +235,25 @@ function myDetails(c){
   ].filter(Boolean);
 }
 
+function fillTemplate(text, c){
+  return (text || "")
+    .replace(/{{name}}/g, c.name || "")
+    .replace(/{{role}}/g, c.role || "")
+    .replace(/{{company}}/g, c.company || "")
+    .replace(/{{email}}/g, c.email || "")
+    .replace(/{{site}}/g, c.site || "");
+}
+
 function render(){
   const c = CONFIG;
+
+  /* The tab title is also the history entry. Ten cards all called
+     "ProtoMatter - contact" are indistinguishable a week later, so name it
+     after whoever the card belongs to. */
+  const title = (c.pageTitle || "").trim()
+    || fillTemplate(c.titleTemplate, c).replace(/^[\s—-]+|[\s—-]+$/g, "")
+    || "Contact";
+  document.title = title;
 
   document.getElementById("name").textContent = c.name || " ";
   document.getElementById("role").textContent =
@@ -245,10 +264,7 @@ function render(){
   const smsBody = c.smsBody ||
     ("Hi! Saving your details.\n\n" + myDetails(c).join("\n") + "\n\nMine are:\nName:\nEmail:\n");
 
-  document.getElementById("autoField").value = (c.autoResponse || "")
-    .replace(/{{name}}/g, c.name).replace(/{{role}}/g, c.role)
-    .replace(/{{company}}/g, c.company).replace(/{{email}}/g, c.email)
-    .replace(/{{site}}/g, c.site);
+  document.getElementById("autoField").value = fillTemplate(c.autoResponse, c);
 
   // One activated endpoint, many people: the submission lands centrally and
   // is copied to whoever's card it actually was.

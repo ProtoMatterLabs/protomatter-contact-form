@@ -116,6 +116,16 @@
     <!-- Shared-only settings: hidden when editing one person's card. -->
     <div id="sharedOnly">
       <fieldset>
+        <legend>Browser tab title</legend>
+        <label for="titleTemplate">Pattern used by every card</label>
+        <input id="titleTemplate" type="text" placeholder="{{name}} — {{company}}">
+        <p class="note">This is what shows in the browser tab and in someone's history,
+           so it should name the person, not the site. Placeholders:
+           <code>{{name}}</code> <code>{{role}}</code> <code>{{company}}</code>.
+           A card can override it from the admin panel.</p>
+      </fieldset>
+
+      <fieldset>
         <legend>Their details form</legend>
         <div class="check"><input id="showForm" type="checkbox"><label for="showForm" style="margin:0">Show the form</label></div>
         <div class="row" style="margin-top:12px">
@@ -168,7 +178,8 @@ const PERSONAL = !!cardId;
 
 const OWN = ["name","role","company","email","phone","site",
              "emailSubject","emailBody","smsBody"];
-const SHARED_ONLY = ["endpoint","autoResponse","formTitle","formSub","noteLabel"];
+const SHARED_ONLY = ["endpoint","autoResponse","formTitle","formSub","noteLabel",
+                     "titleTemplate"];
 const FLAGS = ["showForm","askPhone","askCompany","askNote"];
 const FIELDS = PERSONAL ? OWN : OWN.concat(SHARED_ONLY);
 

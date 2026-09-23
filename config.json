@@ -20,5 +20,7 @@
   "noteLabel": "What are you working on?",
   "cc": "",
   "ccOwner": true,
-  "ccMode": "bcc"
+  "ccMode": "bcc",
+  "titleTemplate": "{{name}} — {{company}}",
+  "pageTitle": ""
 }

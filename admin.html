@@ -193,6 +193,9 @@
 
     <fieldset class="adminOnly">
       <legend>Admin only &mdash; not shown in their editor</legend>
+      <label for="pageTitle">Browser tab / history title</label>
+      <input id="pageTitle" type="text" placeholder="leave blank to use the shared pattern">
+      <p class="note" id="titlePreview"></p>
       <label for="cc">Copy submissions to</label>
       <input id="cc" type="text" placeholder="someone@example.com, another@example.com">
       <label for="ccMode">How to copy them</label>
@@ -314,7 +317,7 @@
 
 <script>
 const FIELDS = ["name","role","company","email","phone","site",
-                "cc","ccMode","emailSubject","emailBody","smsBody"];
+                "cc","ccMode","pageTitle","emailSubject","emailBody","smsBody"];
 
 let shared = {};          // config.json: what a blank field falls back to
 let profiles = {};        // id -> profile object
@@ -446,6 +449,24 @@ function drawCount(){
 
 /* Show what an empty field will actually use. A blank box that silently
    inherits is indistinguishable from a blank box that does nothing. */
+/* Show the title this card will actually get, since a blank box means the
+   shared pattern rather than no title. */
+function drawTitlePreview(){
+  const el = document.getElementById("titlePreview");
+  if (!el || !current) return;
+  const profile = profiles[current] || {};
+  const own = (document.getElementById("pageTitle").value || "").trim();
+  if (own){ el.textContent = "tab reads: " + own; return; }
+  const merged = Object.assign({}, shared, profile);
+  const pattern = shared.titleTemplate || "{{name}}";
+  const filled = pattern
+    .replace(/{{name}}/g, merged.name || "")
+    .replace(/{{role}}/g, merged.role || "")
+    .replace(/{{company}}/g, merged.company || "")
+    .trim().replace(/^[\s—-]+|[\s—-]+$/g, "");
+  el.textContent = "tab reads: " + (filled || "Contact") + "   (shared pattern)";
+}
+
 function drawInherited(){
   const pairs = [
     ["emailSubject", "inheritSubject", "email subject"],
@@ -478,6 +499,7 @@ function edit(id){
   document.getElementById("idNote").textContent = linkFor(id);
   document.getElementById("whichId").textContent = "— " + id;
   drawInherited();
+  drawTitlePreview();
   drawList();
   pushPreview();
 }
@@ -496,6 +518,7 @@ function onEdit(){
   profiles[current] = collect();
   dirty(true);
   drawInherited();
+  drawTitlePreview();
   drawList();
   pushPreview();
 }
