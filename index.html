@@ -381,11 +381,18 @@ form.addEventListener("submit", async (event) => {
                    + "browser console. Set an endpoint in edit.html to go live.");
   }
 
+  // An empty control field is not the same as an absent one: the relay answers
+  // HTTP 500 to `_cc: ""`. Send only the control fields that carry a value.
+  const payload = Object.fromEntries(new FormData(form));
+  Object.keys(payload).forEach(key => {
+    if (key.startsWith("_") && !String(payload[key]).trim()) delete payload[key];
+  });
+
   try {
     const response = await fetch(CONFIG.endpoint, {
       method:"POST",
       headers:{"Content-Type":"application/json", "Accept":"application/json"},
-      body:JSON.stringify(Object.fromEntries(new FormData(form)))
+      body:JSON.stringify(payload)
     });
     // The relay answers 200 even when it refuses, with the reason in the
     // body. Trusting the status code alone shows a green tick for a
