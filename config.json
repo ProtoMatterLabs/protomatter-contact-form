@@ -19,5 +19,6 @@
   "askNote": true,
   "noteLabel": "What are you working on?",
   "cc": "",
-  "ccOwner": true
+  "ccOwner": true,
+  "ccMode": "bcc"
 }

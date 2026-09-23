@@ -117,6 +117,17 @@
     <fieldset>
       <legend>Profile <span id="whichId"></span></legend>
       <div class="row">
+        <div>
+          <label for="cardId">Card ID (appears in the link and every email)</label>
+          <input id="cardId" type="text" placeholder="ada_lovelace">
+        </div>
+        <div style="flex:0 0 150px; display:flex; align-items:flex-end">
+          <button id="fromName" style="width:100%">Use the name</button>
+        </div>
+      </div>
+      <p class="note" id="idNote"></p>
+
+      <div class="row">
         <div><label for="name">Name</label><input id="name" type="text"></div>
         <div><label for="role">Role</label><input id="role" type="text"></div>
       </div>
@@ -126,6 +137,16 @@
         <div><label for="phone">Phone</label><input id="phone" type="tel" placeholder="+15555551234"></div>
       </div>
       <label for="site">Website</label><input id="site" type="url">
+      <label for="cc">Copy submissions to</label>
+      <input id="cc" type="text" placeholder="someone@example.com, another@example.com">
+      <label for="ccMode">How to copy them</label>
+      <select id="ccMode">
+        <option value="bcc">Bcc — hidden from the other recipients</option>
+        <option value="cc">Cc — everyone sees who else was copied</option>
+      </select>
+      <p class="note">Every submission from this card is copied here as well as
+         landing in the central inbox. Comma-separate for several. Bcc is the
+         safer default: the copied addresses stay out of the header.</p>
       <p class="note">Blank fields fall back to the shared <code>config.json</code>,
          so you only fill in what differs for this person.</p>
     </fieldset>
@@ -159,7 +180,7 @@
 
 <script>
 const FIELDS = ["name","role","company","email","phone","site",
-                "emailSubject","emailBody","smsBody"];
+                "cc","ccMode","emailSubject","emailBody","smsBody"];
 
 let profiles = {};        // id -> profile object
 let selected = new Set(); // ids ticked for export
@@ -184,6 +205,31 @@ function newId(){
       ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join("");
   } while (profiles[id]);
   return id;
+}
+
+/* Readable ids beat random ones: the id shows up in the link and in every
+   notification email, where "m2x8p1" tells you nothing. Keep it URL-safe. */
+function slug(text){
+  return (text || "").toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 40);
+}
+
+function rename(oldId, wanted){
+  const clean = slug(wanted);
+  if (!clean || clean === oldId) return oldId;
+  if (profiles[clean]){
+    say("There is already a profile called " + clean + ".");
+    return oldId;
+  }
+  // Rebuild in order so renaming does not shuffle the list.
+  const rebuilt = {};
+  Object.keys(profiles).forEach(k => {
+    if (k === oldId) rebuilt[clean] = profiles[oldId];
+    else rebuilt[k] = profiles[k];
+  });
+  profiles = rebuilt;
+  if (selected.has(oldId)){ selected.delete(oldId); selected.add(clean); }
+  return clean;
 }
 
 function baseUrl(){
@@ -251,6 +297,8 @@ function edit(id){
   current = id;
   const profile = profiles[id] || {};
   FIELDS.forEach(k => document.getElementById(k).value = profile[k] || "");
+  document.getElementById("cardId").value = id;
+  document.getElementById("idNote").textContent = linkFor(id);
   document.getElementById("whichId").textContent = "— " + id;
   drawList();
   pushPreview();
@@ -284,6 +332,25 @@ FIELDS.forEach(k => {
   el.addEventListener("change", onEdit);
 });
 document.getElementById("baseUrl").addEventListener("input", () => { drawCount(); pushPreview(); });
+
+document.getElementById("cardId").addEventListener("change", () => {
+  if (!current) return;
+  const wanted = document.getElementById("cardId").value;
+  const now = rename(current, wanted);
+  current = now;
+  edit(now);
+  say("Card ID is now " + now);
+});
+
+document.getElementById("fromName").addEventListener("click", () => {
+  if (!current) return;
+  const wanted = slug(document.getElementById("name").value);
+  if (!wanted) return say("Give the profile a name first.");
+  const now = rename(current, wanted);
+  current = now;
+  edit(now);
+  say("Card ID is now " + now);
+});
 
 frame.addEventListener("load", () => { ready = true; pushPreview(); });
 

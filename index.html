@@ -121,7 +121,7 @@
   <div class="actions" id="actions"></div>
 
   <div id="formPanel">
-    <form id="form" novalidate>
+    <form id="form" novalidate autocomplete="on" name="contact">
       <label class="req" for="fname">Your name</label>
       <input id="fname" name="name" type="text" autocomplete="name"
              enterkeyhint="next" required placeholder="Ada Lovelace">
@@ -156,6 +156,7 @@
       <!-- Copies to a second address. With one central endpoint this is how
            the individual whose card it is also gets the submission. -->
       <input type="hidden" name="_cc" id="ccField" value="">
+      <input type="hidden" name="_bcc" id="bccField" value="">
       <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
       <input type="hidden" name="card" id="cardField" value="">
       <!-- Filled at submit time, once their address is known. These arrive in
@@ -166,6 +167,10 @@
 
       <button class="send" id="sendBtn" type="submit">Send</button>
       <div class="err" id="err"></div>
+      <div class="hint" id="autofillHint">
+        Tip: tap a field and your phone will offer to fill it from your own
+        contact card.
+      </div>
       <div class="hint">Straight to my inbox. No list, nothing else.</div>
     </form>
 
@@ -190,8 +195,9 @@ const DEFAULTS = {
   emailBody:"Name:\nEmail:\nPhone:\n",
   smsBody:"",
   autoResponse:"",
-  cc:"",          // extra address copied on every submission
-  ccOwner:true,   // also copy this profile's own email
+  cc:"",           // extra address copied on every submission
+  ccOwner:true,    // also copy this profile's own email
+  ccMode:"bcc",    // "bcc" keeps the copied addresses off the header
   formTitle:"Send me your details",
   formSub:"your phone fills it in — one tap",
   showForm:true, askPhone:true, askCompany:true, askNote:true,
@@ -246,8 +252,12 @@ function render(){
   const copies = [];
   if (c.cc) copies.push(c.cc);
   if (c.ccOwner && c.email) copies.push(c.email);
-  document.getElementById("ccField").value =
-    Array.from(new Set(copies.filter(Boolean))).join(",");
+  const copyList = Array.from(new Set(copies.filter(Boolean))).join(",");
+  // bcc by default: the people copied have no reason to see each other's
+  // addresses, and the list grows as profiles are added.
+  const blind = (c.ccMode || "bcc") === "bcc";
+  document.getElementById("bccField").value = blind ? copyList : "";
+  document.getElementById("ccField").value = blind ? "" : copyList;
 
   if (cardId){
     document.getElementById("cardField").value = cardId;
