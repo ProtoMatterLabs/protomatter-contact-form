@@ -56,6 +56,16 @@
     background:#22222a; color:var(--ink);
   }
   @media (prefers-color-scheme: light){ .act .ico{background:#f0f0f5} }
+  /* A profile can supply its own backdrop art, and the page cannot know how
+     dark that art is. So a profile that sets one also declares its tone, and
+     that pins the palette. Without this a phone in light mode paints near-black
+     text straight onto a near-black backdrop: measured at 1.06:1, which is not
+     "a bit low", it is invisible. The attribute outranks the media query, so
+     the order of these rules does not matter. */
+  :root[data-tone="dark"]{
+    --bg:#0d0d10; --card:#16161b; --line:#292932; --ink:#f3f3f6; --dim:#9797a4;
+  }
+  :root[data-tone="dark"] .act .ico{background:#22222a}
   .act .txt{flex:1; min-width:0}
   .act .sub{display:block; color:var(--dim); font-size:12.5px; font-weight:400}
   .act .arrow{color:var(--dim); font-size:18px; flex:none}
@@ -202,6 +212,7 @@ const DEFAULTS = {
   ccMode:"bcc",    // "bcc" keeps the copied addresses off the header
   accent:"",      // brand colour; blank keeps the default
   background:"",  // page background: a colour, or url(...) for an image
+  backgroundTone:"",  // "dark" or "light": pins the palette under that backdrop
   allowAccent:true,   // may the card owner pick their own colour
   // Which of the automatic actions appear. Absent means shown.
   show:{contact:true, email:true, text:true, call:true, site:true, form:true},
@@ -269,6 +280,9 @@ function render(){
           ? c.background.trim()
           : "url('" + c.background.trim() + "') center/cover no-repeat fixed");
     document.body.style.background = value;
+  }
+  if (c.backgroundTone === "dark" || c.backgroundTone === "light"){
+    document.documentElement.setAttribute("data-tone", c.backgroundTone);
   }
 
   /* The tab title is also the history entry. Ten cards all called

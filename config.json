@@ -1,10 +1,10 @@
 {
-  "name": "Douglas",
-  "role": "CEO",
-  "company": "ProtoMatter Labs",
-  "email": "automatolabs@gmail.com",
+  "name": "",
+  "role": "",
+  "company": "Censia AI",
+  "email": "",
   "phone": "",
-  "site": "https://automatolabs.com",
+  "site": "https://censia.com",
   "links": [],
   "endpoint": "https://formsubmit.co/ajax/automatolabs@gmail.com",
   "emailSubject": "Nice meeting you",
@@ -21,11 +21,14 @@
   "cc": "",
   "ccOwner": true,
   "ccMode": "bcc",
-  "titleTemplate": "{{name}} — {{company}}",
+  "titleTemplate": "{{name}} | {{company}}",
   "pageTitle": "",
   "allowAccent": true,
-  "background": "",
+  "background": "censia-bg.jpg",
   "approverName": "Douglas",
   "approverEmail": "automatolabs@gmail.com",
-  "approvalNote": "Updates are reviewed before they go live, so it may take a little while. Nothing is lost in the meantime."
+  "approvalNote": "Updates are reviewed before they go live, so it may take a little while. Nothing is lost in the meantime.",
+  "accent": "#057D72",
+  "backgroundTone": "dark",
+  "photo": "censia-mark.png"
 }
