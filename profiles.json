@@ -7,7 +7,7 @@
       "email": "ccarruthers@censia.com",
       "phone": "+14083067844",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
@@ -33,7 +33,7 @@
       "email": "wlane@censia.com",
       "phone": "+15416339144",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
@@ -59,7 +59,7 @@
       "email": "poleary@censia.com",
       "phone": "+16312941355",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
@@ -85,7 +85,7 @@
       "email": "acrouse@censia.com",
       "phone": "+14178806646",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
@@ -111,7 +111,7 @@
       "email": "afarr@censia.com",
       "phone": "+16787555068",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
@@ -137,7 +137,7 @@
       "email": "tjohnson@censia.com",
       "phone": "+12098105953",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
@@ -163,7 +163,7 @@
       "email": "jogawa@censia.com",
       "phone": "+18593277607",
       "show": {
-        "contact": true,
+        "contact": false,
         "email": true,
         "text": true,
         "call": false,
