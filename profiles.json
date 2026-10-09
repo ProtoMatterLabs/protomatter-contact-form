@@ -40,6 +40,209 @@
           "url": "https://cal.com/example"
         }
       ]
+    },
+    "a3fr9j": {
+      "name": "Carolynne Carruthers",
+      "role": "Enterprise Account Executive",
+      "company": "Censia AI",
+      "email": "ccarruthers@censia.com",
+      "phone": "+14083067844",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/carolynne-carruthers"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "Carolynne Carruthers | Censia AI | card a3fr9j"
+    },
+    "xbzn4y": {
+      "name": "William Lane",
+      "role": "Account Executive",
+      "company": "Censia AI",
+      "email": "wlane@censia.com",
+      "phone": "+15416339144",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/william-lane-955675165/"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "William Lane | Censia AI | card xbzn4y"
+    },
+    "xfhe7j": {
+      "name": "Peter O'Leary",
+      "role": "Enterprise Revenue Executive",
+      "company": "Censia AI",
+      "email": "poleary@censia.com",
+      "phone": "+16312941355",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/peter-o%E2%80%99leary-5288332/"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "Peter O'Leary | Censia AI | card xfhe7j"
+    },
+    "j33mnh": {
+      "name": "Austin Crouse",
+      "role": "Solutions & Customer Success",
+      "company": "Censia AI",
+      "email": "acrouse@censia.com",
+      "phone": "+14178806646",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/austincrouse/"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "Austin Crouse | Censia AI | card j33mnh"
+    },
+    "ky7jfr": {
+      "name": "Austin Farr",
+      "role": "Director of Solutions and Value",
+      "company": "Censia AI",
+      "email": "afarr@censia.com",
+      "phone": "+16787555068",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/austin-farr-33003253/"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "Austin Farr | Censia AI | card ky7jfr"
+    },
+    "w74evt": {
+      "name": "Tim Johnson",
+      "role": "Co-Founder, Chief Operating Officer",
+      "company": "Censia AI",
+      "email": "tjohnson@censia.com",
+      "phone": "+12098105953",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/timjohnson4/"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "Tim Johnson | Censia AI | card w74evt"
+    },
+    "yvvp1v": {
+      "name": "Jillian Ogawa",
+      "role": "Head of Content Marketing",
+      "company": "Censia AI",
+      "email": "jogawa@censia.com",
+      "phone": "+18593277607",
+      "site": "https://censia.com",
+      "accent": "#1f6f8b",
+      "show": {
+        "contact": true,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": true
+      },
+      "links": [
+        {
+          "icon": "in",
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "url": "https://www.linkedin.com/in/jillianogawa/"
+        }
+      ],
+      "formTitle": "Request a follow-up",
+      "formSub": "tell me what to follow up about",
+      "noteLabel": "What would you like me to follow up about?",
+      "pageTitle": "Jillian Ogawa | Censia AI | card yvvp1v"
     }
   }
 }
