@@ -301,6 +301,10 @@ function render(){
     .map(w => w[0] || "").join("").slice(0, 2).toUpperCase();
   if (c.photo){
     avatar.textContent = "";
+    /* The circle is filled with the accent so initials have something to sit
+       on. A photo covers it anyway, and a logo with transparency should sit on
+       the page, not on a coloured disc, so the fill goes. */
+    avatar.style.background = "transparent";
     const img = document.createElement("img");
     img.src = c.photo;
     img.alt = c.name || "";
