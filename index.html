@@ -209,6 +209,8 @@
 const DEFAULTS = {
   name:"", role:"", company:"", email:"", phone:"", site:"", links:[],
   endpoint:"",
+  relay:"",        // an Apps Script web app. Tried first; it sends at once.
+                   // endpoint above is the fallback when it cannot be reached.
   emailSubject:"Nice meeting you",
   emailBody:"Name:\nEmail:\nPhone:\n",
   smsBody:"",
@@ -528,6 +530,28 @@ form.addEventListener("submit", async (event) => {
   Object.keys(payload).forEach(key => {
     if (key.startsWith("_") && !String(payload[key]).trim()) delete payload[key];
   });
+
+  /* The relay sends the mail itself, the moment this lands. FormSubmit cannot
+     reply to someone who has not confirmed themselves as one of its
+     destinations, which is everyone who ever fills in a card.
+
+     Content-Type is text/plain on purpose. A JSON content type makes this a
+     preflighted request, and Apps Script never answers the OPTIONS probe, so
+     the post would fail before being sent. The body is still JSON text. */
+  if (CONFIG.relay){
+    try {
+      const relayed = await fetch(CONFIG.relay, {
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify(payload),
+      });
+      const verdict = await relayed.json();
+      if (verdict && verdict.success) return succeed();
+      console.warn("[card] relay refused, falling back:", verdict);
+    } catch (error){
+      console.warn("[card] relay unreachable, falling back:", error);
+    }
+  }
 
   try {
     const response = await fetch(CONFIG.endpoint, {

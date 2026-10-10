@@ -30,5 +30,6 @@
   "approvalNote": "Updates are reviewed before they go live, so it may take a little while. Nothing is lost in the meantime.",
   "accent": "#057D72",
   "backgroundTone": "dark",
-  "photo": "censia-mark.png"
+  "photo": "censia-mark.png",
+  "relay": "https://script.google.com/macros/s/AKfycbwdQxOIJcFg49bx9YSZbINlU2unwqVOdEcdYq3_sGCIGycc41apHBYMykvHnvcJpl5Z/exec"
 }
