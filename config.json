@@ -24,7 +24,7 @@
   "titleTemplate": "{{name}} | {{company}}",
   "pageTitle": "",
   "allowAccent": true,
-  "background": "linear-gradient(125deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 78%, rgba(22,50,40,.55) 82%, #18362B 88%, rgba(22,48,39,.5) 92%, rgba(0,0,0,0) 96%), radial-gradient(135% 95% at 46% 30%, #1A2322 0%, #171D1D 55%, #15191A 100%), #171B1C",
+  "background": "censia-bg-portrait.jpg",
   "approverName": "Douglas",
   "approverEmail": "automatolabs@gmail.com",
   "approvalNote": "Updates are reviewed before they go live, so it may take a little while. Nothing is lost in the meantime.",
