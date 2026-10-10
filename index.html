@@ -518,8 +518,11 @@ form.addEventListener("submit", async (event) => {
   sendBtn.disabled = true;
   sendBtn.textContent = "Sending…";
 
-  if (!CONFIG.endpoint){
-    console.log("TEST MODE — would have sent:", Object.fromEntries(new FormData(form)));
+  /* Either route counts as live. Checking only the endpoint would put a
+     relay-only card into test mode: it would thank every visitor and send
+     nothing, without an error anywhere. */
+  if (!CONFIG.relay && !CONFIG.endpoint){
+    console.log("TEST MODE - would have sent:", Object.fromEntries(new FormData(form)));
     return succeed("TEST MODE - this was NOT sent anywhere. It only went to the "
                    + "browser console. Set an endpoint in edit.html to go live.");
   }
@@ -552,6 +555,8 @@ form.addEventListener("submit", async (event) => {
       console.warn("[card] relay unreachable, falling back:", error);
     }
   }
+
+  if (!CONFIG.endpoint) return fail("Could not send just now. Please try again.");
 
   try {
     const response = await fetch(CONFIG.endpoint, {
