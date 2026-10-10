@@ -182,7 +182,8 @@
       <input type="hidden" name="reply_by_email" id="replyEmail" value="">
       <input type="hidden" name="reply_by_text" id="replyText" value="">
 
-      <button class="send" id="sendBtn" type="submit">Send</button>
+      <!-- Disabled until the config has loaded. Submitting before then silently sends nothing: the endpoint is still blank, so the page takes its test-mode path and tells the sender it worked. -->
+      <button class="send" id="sendBtn" type="submit" disabled>Send</button>
       <div class="err" id="err"></div>
       <div class="hint" id="autofillHint">
         Tip: tap a field and your phone will offer to fill it from your own
@@ -233,6 +234,7 @@ const DEFAULTS = {
 
 let CONFIG = Object.assign({}, DEFAULTS);
 let HIDDEN_COPIES = [];
+let READY = false;
 // What a previewed profile gets merged over, so the preview keeps the
 // shared settings (endpoint, auto-reply) instead of appearing switched off.
 let BASE = Object.assign({}, DEFAULTS);
@@ -493,6 +495,7 @@ form.addEventListener("submit", async (event) => {
   // properties, which shadow inputs of the same name and hand back a string
   // instead of a field. Address the inputs directly.
   const field = (id) => document.getElementById(id).value;
+  if (!READY) return fail("Still loading. Try again in a moment.");
   const name = field("fname").trim();
   const email = field("femail").trim();
   if (!name) return fail("Please add your name.");
@@ -566,6 +569,8 @@ window.addEventListener("message", (event) => {
   if (event.data && event.data.nfcConfig){
     CONFIG = Object.assign({}, BASE, event.data.nfcConfig);
     render();
+    READY = true;
+    document.getElementById("sendBtn").disabled = false;
   }
 });
 
@@ -598,6 +603,8 @@ async function loadJson(path){
     }
   }
   render();
+  READY = true;
+  document.getElementById("sendBtn").disabled = false;
 })();
 </script>
 </body>
