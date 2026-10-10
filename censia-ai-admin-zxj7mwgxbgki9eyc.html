@@ -24,6 +24,15 @@
   .list{flex:0 0 340px}
   .editor{flex:1 1 400px; min-width:320px}
   .preview{flex:0 0 380px}
+  .reqs{margin-top:14px; border:1px solid var(--line); border-radius:10px;
+    background:var(--panel); padding:12px 13px}
+  .reqs h4{margin:0 0 9px; font-size:13px}
+  .reqs .rq{margin:0 0 9px; font-size:11.5px; line-height:1.5; color:var(--dim)}
+  .reqs .rq:last-child{margin-bottom:0}
+  .reqs .rq b{color:var(--ink)}
+  .reqs .rq i{font-style:italic}
+  .reqs .rq code{font-size:11px; padding:0 3px}
+  .reqs .rq.warn{border-left:3px solid var(--warn); padding-left:9px}
 
   input,textarea,select{
     padding:9px 10px; font:inherit; font-size:14px; color:var(--ink);
@@ -284,6 +293,46 @@
   <div class="preview">
     <iframe id="frame" src="index.html" title="preview"></iframe>
     <p class="note" id="previewUrl"></p>
+    <div class="reqs">
+      <h4>Before you roll this out</h4>
+
+      <p class="rq warn"><b>Every address has to be activated once.</b>
+         FormSubmit's own words: <i>"Submit the form once. This first-time-use
+         will trigger an email requesting confirmation."</i> Until somebody
+         clicks that link, submissions are <b>not delivered</b>. Send one test
+         through a card and watch for it before handing cards out.</p>
+
+      <p class="rq warn"><b>Copies to the cardholder are not guaranteed.</b>
+         FormSubmit documents <code>_cc</code> but says nothing about
+         <code>_bcc</code>, and the per-cardholder copy rides on
+         <code>_bcc</code>. It may be dropped silently. Confirm a copy actually
+         arrives before promising anyone they will see their own enquiries.</p>
+
+      <p class="rq"><b>Where a submission goes.</b> The central inbox is set by
+         the endpoint. <i>Copy submissions to</i> adds any address you like, for
+         every card. <i>Let this person choose their own colour and photo</i>
+         does not affect routing. The auto-reply goes to whoever filled the
+         form, not to you.</p>
+
+      <p class="rq"><b>Nothing is live until the file is committed.</b>
+         Download <code>profiles.json</code> and commit it. There is no token in
+         this page and there will not be one, because this page is public.</p>
+
+      <p class="rq"><b>A card id is permanent once printed.</b> There is no
+         redirect. Renaming an id breaks every card already in a wallet.</p>
+
+      <p class="rq"><b>The relay lies about success.</b> It answers HTTP 200
+         even when it refuses, with the reason in the body. An empty
+         <code>_cc</code> makes it answer 500, so empty control fields are
+         stripped before sending. Leave both behaviours alone.</p>
+
+      <p class="rq"><b>Keep it plain ASCII on the wire.</b> Curly quotes and
+         dashes in an address, a subject or a reply have broken this twice.</p>
+
+      <p class="rq"><b>Leave the referrer policy alone.</b> The relay reads
+         <code>Referer</code> to tell a hosted page from a local file.
+         <code>no-referrer</code> breaks submissions outright.</p>
+    </div>
   </div>
 
 </div>
