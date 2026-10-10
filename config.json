@@ -12,7 +12,7 @@
   "smsBody": "",
   "autoResponse": "Thanks for the details, good to meet you.\n\nHere are mine:\n{{name}}\n{{role}} at {{company}}\n{{email}}\n{{site}}\n\nI'll follow up properly shortly.",
   "formTitle": "Send me your details",
-  "formSub": "your phone fills it in — one tap",
+  "formSub": "your phone fills it in, one tap",
   "showForm": true,
   "askPhone": true,
   "askCompany": true,
