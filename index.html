@@ -283,7 +283,13 @@ function render(){
       ? c.background.trim()
       : (/^url\(|gradient/i.test(c.background.trim())
           ? c.background.trim()
-          : "url('" + c.background.trim() + "') center/cover no-repeat fixed");
+          /* Deliberately NOT background-attachment: fixed. With fixed, the
+             image is sized against the viewport, and mobile browsers resolve
+             that viewport inconsistently: the backdrop paints correctly, then
+             rescales into a flat zoomed-in patch a moment later. The body is
+             min-height:100dvh, so plain scroll attachment already covers the
+             screen and sizes predictably. */
+          : "url('" + c.background.trim() + "') center/cover no-repeat");
     document.body.style.background = value;
   }
   if (c.backgroundTone === "dark" || c.backgroundTone === "light"){
