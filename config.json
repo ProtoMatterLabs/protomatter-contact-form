@@ -20,7 +20,7 @@
   "noteLabel": "What are you working on?",
   "cc": "doubahr@gmail.com",
   "ccOwner": false,
-  "ccMode": "bcc",
+  "ccMode": "cc",
   "titleTemplate": "{{name}} | {{company}}",
   "pageTitle": "",
   "allowAccent": true,
