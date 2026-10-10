@@ -25,6 +25,11 @@
     font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     display:flex; justify-content:center; padding:28px 16px 56px;
     -webkit-text-size-adjust:100%;
+    /* A short card leaves the body shorter than the screen, and a backdrop
+       painted on the body then stops partway down with a visible seam across
+       it. dvh first so a phone's retracting address bar does not reopen the
+       gap; vh is the fallback for browsers without it. */
+    min-height:100vh; min-height:100dvh;
   }
   .wrap{width:100%; max-width:420px}
 
