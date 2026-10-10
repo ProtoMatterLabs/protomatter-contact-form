@@ -232,6 +232,7 @@ const DEFAULTS = {
 };
 
 let CONFIG = Object.assign({}, DEFAULTS);
+let HIDDEN_COPIES = [];
 // What a previewed profile gets merged over, so the preview keeps the
 // shared settings (endpoint, auto-reply) instead of appearing switched off.
 let BASE = Object.assign({}, DEFAULTS);
@@ -339,8 +340,12 @@ function render(){
   const copyList = Array.from(new Set(copies.filter(Boolean))).join(",");
   // bcc by default: the people copied have no reason to see each other's
   // addresses, and the list grows as profiles are added.
+  /* Hidden copies do not go in a header at all, because _bcc is dropped.
+     They are posted separately after the main submission; HIDDEN_COPIES is
+     that list. Visible copies still use _cc, which the relay honours. */
   const blind = (c.ccMode || "bcc") === "bcc";
-  document.getElementById("bccField").value = blind ? copyList : "";
+  HIDDEN_COPIES = blind ? copies.filter(Boolean) : [];
+  document.getElementById("bccField").value = "";
   document.getElementById("ccField").value = blind ? "" : copyList;
 
   if (cardId){
@@ -444,6 +449,42 @@ function succeed(message){
   done.style.display = "block";
 }
 
+
+/* A hidden copy, sent as its own submission.
+
+   FormSubmit accepts _cc and silently drops _bcc: a submission carrying _bcc
+   arrived at the endpoint and never reached the copy address, spam included.
+   So "hidden" cannot be a header here. It has to be a separate message to a
+   separate endpoint, which no recipient of the first one can see.
+
+   Deliberately fire-and-forget. The person submitting has already been told
+   their message was sent, and it was. A copy that fails is an operator's
+   problem, not theirs, so it is logged and never shown. */
+async function sendHiddenCopies(addresses, payload){
+  for (const address of addresses){
+    const copy = Object.assign({}, payload);
+    // No second auto-reply: the sender has had one already.
+    delete copy._autoresponse;
+    delete copy._cc;
+    delete copy._bcc;
+    copy._subject = "COPY - " + (payload._subject || "card submission");
+    try {
+      const response = await fetch(
+        "https://formsubmit.co/ajax/" + encodeURIComponent(address),
+        {method:"POST",
+         headers:{"Content-Type":"application/json", "Accept":"application/json"},
+         body:JSON.stringify(copy)});
+      const body = await response.json().catch(() => ({}));
+      // The relay answers 200 even when it refuses, so read the body.
+      if (String(body.success) !== "true"){
+        console.warn("[card] copy to", address, "refused:", body);
+      }
+    } catch (error){
+      console.warn("[card] copy to", address, "failed:", error);
+    }
+  }
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   errBox.style.display = "none";
@@ -495,6 +536,9 @@ form.addEventListener("submit", async (event) => {
     // body. Trusting the status code alone shows a green tick for a
     // submission that was thrown away.
     if (!response.ok) throw new Error("HTTP " + response.status);
+    // Copies go after the main post, so a copy failing can never cost the
+    // person their actual submission.
+    if (HIDDEN_COPIES.length) sendHiddenCopies(HIDDEN_COPIES, payload);
     // Deliberately not called `payload`: the request body above is already
     // named that, and a second `let` in the same block puts the first in the
     // temporal dead zone - the request then throws before it is ever sent.
