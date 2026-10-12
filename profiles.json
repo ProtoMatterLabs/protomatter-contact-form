@@ -196,6 +196,40 @@
         }
       ],
       "pageTitle": "Jillian Ogawa | Censia AI | card yvvp1v"
+    },
+    "3my7hi": {
+      "name": "Douglas Bahr",
+      "role": "CEO",
+      "company": "ProtoMatter Labs",
+      "email": "douglas@protomatter.ai",
+      "phone": "+19252078532",
+      "site": "https://www.protomatter.ai/",
+      "accent": "#2F5D8C",
+      "background": "",
+      "backgroundTone": "",
+      "photo": "",
+      "show": {
+        "contact": false,
+        "email": true,
+        "text": true,
+        "call": false,
+        "site": false,
+        "form": false
+      },
+      "links": [
+        {
+          "label": "LinkedIn",
+          "sub": "connect with me",
+          "icon": "in",
+          "url": "https://www.linkedin.com/"
+        },
+        {
+          "label": "ProtoMatter Labs",
+          "sub": "what we build",
+          "url": "https://www.protomatter.ai/"
+        }
+      ],
+      "pageTitle": "Douglas Bahr | ProtoMatter Labs | card 3my7hi"
     }
   }
 }
