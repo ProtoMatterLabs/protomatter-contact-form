@@ -12,7 +12,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -20,11 +20,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/carolynne-carruthers"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "Carolynne Carruthers | Censia AI | card a3fr9j"
     },
     "xbzn4y": {
@@ -38,7 +40,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -46,11 +48,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/william-lane-955675165/"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "William Lane | Censia AI | card xbzn4y"
     },
     "xfhe7j": {
@@ -64,7 +68,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -72,11 +76,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/peter-o%E2%80%99leary-5288332/"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "Peter O'Leary | Censia AI | card xfhe7j"
     },
     "j33mnh": {
@@ -90,7 +96,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -98,11 +104,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/austincrouse/"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "Austin Crouse | Censia AI | card j33mnh"
     },
     "ky7jfr": {
@@ -116,7 +124,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -124,11 +132,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/austin-farr-33003253/"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "Austin Farr | Censia AI | card ky7jfr"
     },
     "w74evt": {
@@ -142,7 +152,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -150,11 +160,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/timjohnson4/"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "Tim Johnson | Censia AI | card w74evt"
     },
     "yvvp1v": {
@@ -168,7 +180,7 @@
         "text": true,
         "call": false,
         "site": false,
-        "form": true
+        "form": false
       },
       "links": [
         {
@@ -176,11 +188,13 @@
           "label": "LinkedIn",
           "sub": "connect with me",
           "url": "https://www.linkedin.com/in/jillianogawa/"
+        },
+        {
+          "label": "Censia AI Overview",
+          "sub": "what we do, in one page",
+          "url": "https://hubs.ly/Q04zQSdF0"
         }
       ],
-      "formTitle": "Request a follow-up",
-      "formSub": "tell me what to follow up about",
-      "noteLabel": "What would you like me to follow up about?",
       "pageTitle": "Jillian Ogawa | Censia AI | card yvvp1v"
     }
   }
